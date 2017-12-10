@@ -14,11 +14,17 @@ import java.util.List;
 
 /*
  * author: lihongjian,20171208
- * Ä¿µÄ£º¶Ô±ÈcopyBookµÄsqlÎÄ¼ş£¬Éú³É½¨±íÓï¾ä
+ * å¤„ç†copyBookæ•°æ®ç»“æ„ï¼Œè½¬åŒ–ä¸ºæ ‡å‡†sqlè¯­å¥
  * */
 public class CopyBookWithODS {
-	//ÄµÚÒ»ĞĞé_Ê¼×xÈ¡
+	//å¼€å§‹è¡Œæ•°
     private  int line = 1;
+	private  final  String treeNumber = "03";
+	private  final  String fiveNumber = "05";
+	private  final  String firstNumber = "01";
+	private  final  String DsbNumber = "DSB001";
+	private  final  String DevNumber = "DEVLYF";
+
 	public File getFile(String path) {
 		File file = new File(path);
 		return file;
@@ -27,10 +33,10 @@ public class CopyBookWithODS {
     private String getSplit(String charsString){
     	String lsString = null;
     	charsString = charsString.replace(".","").trim();
-    	if (charsString.contains("DSB001")) {
-    		lsString = charsString.replace("DSB001","").trim();
-    	}else if (charsString.contains("DEVLYF")) {
-    		lsString = charsString.replace("DEVLYF","").trim();
+    	if (charsString.contains(DsbNumber)) {
+    		lsString = charsString.replace(DsbNumber,"").trim();
+    	}else if (charsString.contains(DevNumber)) {
+    		lsString = charsString.replace(DevNumber,"").trim();
 		}else {
 			lsString = charsString;
 		}
@@ -40,19 +46,14 @@ public class CopyBookWithODS {
     
     public File getConsoleFile(String fileName){
     	File file = new File(fileName);
-    	if (!file.exists()) {
 			try {
 		file.createNewFile();
     	FileOutputStream outputStream = new FileOutputStream(file);
     	PrintStream stream = new PrintStream(outputStream);
     	System.setOut(stream);
-    	//outputStream.close();
-    	//stream.close();
         } catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			}
-        }
     	return file;
     }
     
@@ -64,58 +65,12 @@ public class CopyBookWithODS {
 			reader = new BufferedReader(new FileReader(file));
 				while ((lineString = reader.readLine()) != null ){
 					lineString = lineString.trim();
-				if (lineString.contains("05") && !lineString.trim().contains("*") && !lineString.trim().contains("_05")) {
-					lineString = getSplit(lineString.trim());
-					lineString = lineString.replace(":", "").trim();
-					String[] splited = lineString.split("\\s+");
-					if (splited.length == 4 ) {
-						if (splited[2].contains(",") && splited[2].contains("(")) {
-							splited[2] =  splited[2] + splited[3];
-							List<String> list = new ArrayList<String>();
-					        for (int i=0; i<splited.length; i++) {
-					            list.add(splited[i]);
-					        }
-					        list.remove(3); 
-					        splited =  list.toArray(new String[1]); 
-						}
-					}
-					if (splited[1].contains("_")) {
-						String tabName = splited[1];
-						//µÃµ½tabNameÈ¥µôÇ°ÈıÎ»½áÎ²µÄ×Ö·û£¬ÔÙÈ¥µôËü£¬Í¬Ê±Ò²È¥µôÁ¬×Ö·û
-						tabName = tabName.split("\\_{1}")[0];
-						splited[1] = splited[1].replaceFirst(tabName+"_", "").trim();
-					}
-					System.out.println(Arrays.deepToString(splited));
-				}else if (lineString.contains("03") && !lineString.trim().contains("*") && !lineString.trim().contains("_03")) {
-					lineString = getSplit(lineString.trim());
-					lineString = lineString.replace(":", "").trim();
-					//ÒÔ¿Õ¸ñ×÷Îª·Ö¸î·û
-					String[] splited = lineString.split("\\s+");
-					if (splited.length == 4 ) {
-						if (splited[2].contains(",") && splited[2].contains("(")) {
-							splited[2] =  splited[2] + splited[3];
-							List<String> list = new ArrayList<String>();
-					        for (int i=0; i<splited.length; i++) {
-					            list.add(splited[i]);
-					        }
-					        list.remove(3); 
-					        splited =  list.toArray(new String[1]); 
-						}
-					}
-					if (splited[1].contains("_")) {
-						String tabName = splited[1];
-						//µÃµ½tabNameÈ¥µôÇ°ÈıÎ»½áÎ²µÄ×Ö·û£¬ÔÙÈ¥µôËü£¬Í¬Ê±Ò²È¥µôÁ¬×Ö·û
-						tabName = tabName.split("\\_{1}")[0];
-						splited[1] = splited[1].replaceFirst(tabName+"_", "").trim();
-					}
-					System.out.println(Arrays.deepToString(splited));
-				}else if (lineString.contains("01") && !lineString.trim().contains("*") && !lineString.trim().contains("_01")) {
-					lineString = getSplit(lineString.trim());
-					lineString = lineString.replaceFirst("R:","T:").trim();
-					lineString = lineString.replace(":", "").trim();
-					String[] splited = lineString.split("\\s+");
-					System.out.println("DROP TABLE ODS."+splited[1]+";");
-					System.out.println("CREATE TABLE ODS."+splited[1]+"(");
+				if (lineString.contains(treeNumber)){
+					checkSqlTabFiled(lineString,treeNumber);
+				}else if(lineString.contains(fiveNumber)){
+					checkSqlTabFiled(lineString,fiveNumber);
+				}else if(lineString.contains(firstNumber)){
+					checkSqlTabName(lineString,firstNumber);
 				}
 				   line++;
 			  } 
@@ -129,10 +84,51 @@ public class CopyBookWithODS {
 				try {
 					 reader.close();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block 
 					e.printStackTrace();
 				}	
 			}
 		}
 	}
+
+
+	   private void checkSqlTabFiled(String lineChar,String number){
+		       String str = null;
+		   if (lineChar.contains(number) && !lineChar.trim().contains("_"+number) && !lineChar.trim().contains("*")){
+			   str = getSplit(lineChar.trim());
+			   str = str.replace(":", "").trim();
+			   String[] splited = str.split("\\s+");
+			   if (splited.length == 4 ) {
+				   if (splited[2].contains(",") && splited[2].contains("(") && splited[3].contains(")")) {
+					   splited[2] =  splited[2] + splited[3];
+					   List<String> list = new ArrayList<String>();
+					   for (int i=0; i<splited.length; i++) {
+						   list.add(splited[i]);
+					   }
+					   //å»æ‰ç¬¬å››ä½çš„æ•°ç»„
+					   list.remove(3);
+					   splited =  list.toArray(new String[1]);
+				   }
+			   }
+			   if (splited[1].contains("_")) {
+				   String tabName = splited[1];
+				   //å¾—åˆ°tabNameæˆªæ‰å‰ä¸‰ä½çš„å­—ç¬¦ä¸²
+				   tabName = tabName.split("\\_{1}")[0];
+				   splited[1] = splited[1].replaceFirst(tabName+"_", "").trim();
+			   }
+			     //è¾“å‡ºæ•°ç»„
+			   System.out.println(Arrays.toString(splited));
+		   }
+      }
+
+        private  void checkSqlTabName(String lineChar,String number){
+			    String str = null;
+			if (lineChar.contains(number) && !lineChar.trim().contains("_"+number) && !lineChar.trim().contains("*")) {
+				str = getSplit(lineChar.trim());
+				str = str.replaceFirst("R:", "T:").trim();
+				str = str.replace(":", "").trim();
+				String[] splited = str.split("\\s+");
+				System.out.println("DROP TABLE ODS." + splited[1] + ";");
+				System.out.println("CREATE TABLE ODS." + splited[1] + "(");
+			}
+		}
 }
