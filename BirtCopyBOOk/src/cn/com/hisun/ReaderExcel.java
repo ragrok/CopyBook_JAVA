@@ -1,10 +1,7 @@
 package cn.com.hisun;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.*;
@@ -28,25 +25,31 @@ public class ReaderExcel {
         }
         return  file;
     }
-    
-    private void PrintCellValue(Cell cell){
+           //Excel表中的值
+    private String PrintCellValue(Cell cell){
+
+           String cellValue = null;
     	   switch (cell.getCellType()) {
 			case Cell.CELL_TYPE_NUMERIC:
-				System.out.print(cell.getNumericCellValue());
+				cellValue = String.valueOf(cell.getNumericCellValue()).replace(".0","");
 				break;
 			case Cell.CELL_TYPE_BLANK:
-				System.out.print("");
-				break;
+                cellValue = "";
+                break;
 			case Cell.CELL_TYPE_STRING:
-				System.out.print(cell.getStringCellValue());
+                cellValue = String.valueOf(cell.getStringCellValue());
 				break;
 			case Cell.CELL_TYPE_FORMULA:
-				System.out.print(cell.getRichStringCellValue());
+               // cellValue = String.valueOf(cell.getCellFormula());
 				break;
 			case Cell.CELL_TYPE_BOOLEAN:
-				System.out.print(cell.getBooleanCellValue());
+                cellValue = String.valueOf(cell.getBooleanCellValue());
 				break;
+               case Cell.CELL_TYPE_ERROR:
+                // System.out.println(cell.getErrorCellValue());
+                break;
 			}
+         return cellValue.trim();
     }
 
     public void readerExcel(File file,String txtPath){
@@ -58,24 +61,41 @@ public class ReaderExcel {
             checkExcelValid(file);
             inputStream = new FileInputStream(file);
             if (file.getName().endsWith(EXCEL_XLS)){
-                 book = new HSSFWorkbook(inputStream);
+                book = new HSSFWorkbook(inputStream);
             }else if (file.getName().endsWith(EXCEL_XLSX)){
-                 book = new XSSFWorkbook(inputStream);
+                book = new XSSFWorkbook(inputStream);
             }
             Sheet sheet = book.getSheetAt(pageSheet);
-            for (int i = 2; i< sheet.getPhysicalNumberOfRows();i++) {
-            	     Row row = sheet.getRow(i);
-                for (int j=0; j< row.getPhysicalNumberOfCells(); j++ ){
-                	   if (j == 4 || j == 10 || j == 11 || j == 12) {
-                		   if (row.getCell(j).toString() != null || row.getCell(j).toString() != "") {
-                			   PrintCellValue(row.getCell(j));
-						}
-					}
+            for (Row row : sheet){
+                for (Cell cell : row){
+                    if ((cell.getColumnIndex() == 4 || cell.getColumnIndex() == 10 || cell.getColumnIndex() == 11
+                            || cell.getColumnIndex() == 12) && cell.getRowIndex() != 1 && cell.getRowIndex() != 0){
+                        String cellValue =  PrintCellValue(cell);
+                        if (!cellValue.isEmpty() || cellValue != null) {
+                            if (cell.getColumnIndex() == 12) {
+                                System.out.println(cellValue);
+                            } else {
+                                System.out.print(cellValue+",");
+                            }
+                        }
+                    }
                 }
-               
             }
+
         }catch (Exception ex){
             ex.printStackTrace();
+        }
+    }
+
+    public void getConsoleFile(String fileName){
+        File file = new File(fileName);
+        try {
+            file.createNewFile();
+            FileOutputStream outputStream = new FileOutputStream(file);
+            PrintStream stream = new PrintStream(outputStream);
+            System.setOut(stream);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

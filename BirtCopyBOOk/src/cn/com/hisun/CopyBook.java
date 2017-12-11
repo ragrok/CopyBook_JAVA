@@ -11,11 +11,12 @@ public class CopyBook {
         
 	 public static void main(String[] args) {
 		    //CopyBookWithODS ods = new CopyBookWithODS();
-		    //File file = ods.getFile("H:\\github\\Practice_JAVA\\IBSC_BOOK_1.sql");
-		    //ods.getConsoleFile("H:\\github\\Practice_JAVA\\IBSC_BOOK_2.sql");
-		    //ods.readBookFileByLine(file);
+		   // File file = ods.getFile("E:\\git\\Practice_JAVA\\IBSC_BOOK_1.sql");
+		    //ods.getConsoleFile("E:\\git\\Practice_JAVA\\IBSC_BOOK_2.sql");
+		   // ods.readBookFileByLine(file);
 		    ReaderExcel excel = new ReaderExcel();
-		    File file = excel.getFile("H:\\github\\Practice_JAVA\\大新银行新核心系统项目_香港_数据字典_V2.07.xlsx");
-		    excel.readerExcel(file,"H:\\github\\Practice_JAVA\\excel.txt");
+		    excel.getConsoleFile("E:\\git\\Practice_JAVA\\IBSC_BOOK_3.sql");
+		    File file1 = excel.getFile("E:\\git\\Practice_JAVA\\大新银行新核心系统项目_香港_数据字典_V2.07.xlsx");
+
 		}
 }
