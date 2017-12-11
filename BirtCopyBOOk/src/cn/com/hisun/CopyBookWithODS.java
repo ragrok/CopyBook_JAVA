@@ -16,6 +16,7 @@ import java.util.List;
  * author: lihongjian,20171208
  * 处理copyBook数据结构，转化为标准sql语句
  * */
+ 
 public class CopyBookWithODS {
 	//开始行数
     private  int line = 1;
