@@ -10,8 +10,8 @@ import java.io.IOException;
  */
 public class CopyBookMain {
             public static void main(String[] args) throws IOException {
-		     ConverSqlToTxt sqlToTxt = new ConverSqlToTxt();
-		    sqlToTxt.readBookFileByLine("H:\\github\\Practice_JAVA\\IBSC_BOOK_1.sql","H:\\github\\Practice_JAVA\\IBSC_BOOK_1.txt");
+         	ConverSqlToTxt sqlToTxt = new ConverSqlToTxt();
+		    sqlToTxt.readBookFileByLine("E:\\git\\Practice_JAVA\\IBSC_BOOK_1.sql","E:\\git\\Practice_JAVA\\IBSC_BOOK_1.txt");
 		    //CoverExcelToTxt excel = new CoverExcelToTxt();
 			//excel.checkExcelValid("H:\\github\\Practice_JAVA\\大新银行新核心系统项目_香港_数据字典_V2.07.xlsx");
 		    //excel.readerExcel("H:\\github\\Practice_JAVA\\大新银行新核心系统项目_香港_数据字典_V2.07.xlsx","H:\\github\\Practice_JAVA\\IBSC_BOOK_2.txt");
