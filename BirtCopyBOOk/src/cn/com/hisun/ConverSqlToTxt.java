@@ -15,18 +15,15 @@ import java.util.List;
  */
 
 public class ConverSqlToTxt {
+	
 	//开始行数
-    
 	private  final  String treeNumber = "03";
 	private  final  String fiveNumber = "05";
 	private  final  String firstNumber = "01";
 	private  final  String DsbNumber = "DSB001";
 	private  final  String DevNumber = "DEVLYF";
 
-//	public File getFileForPath(String path) {
-//		File file = new File(path);
-//		return file;
-//	}
+   
 	
     private String getSplit(String charsString){
     	String lsString = null;
@@ -51,24 +48,28 @@ public class ConverSqlToTxt {
         BufferedWriter writer = null;
         String str = ""; 
         String lineStr = "";
-        int line = 1;
         try {
 			reader = new BufferedReader(new FileReader(readerFile));
 			writer = new BufferedWriter(new FileWriter(writeFile));
-				while ((str = reader.readLine()) != null && reader.readLine().length() > 0){
+				while ((str = reader.readLine()) != null ){
 					str = str.trim();
-				if (str.contains(treeNumber)){
-					lineStr = checkSqlTabFiled(str,treeNumber);
-				}else if(str.contains(fiveNumber)){
-					lineStr = checkSqlTabFiled(str,fiveNumber);
-				}else if(str.contains(firstNumber)){
-					lineStr = checkSqlTabName(str,firstNumber);
+				//if (str.startsWith(treeNumber) && !str.trim().contains("*")){
+					//lineStr = checkSqlTabFiled(str,treeNumber);
+				//}else if(str.startsWith(fiveNumber) && !str.trim().contains("*")){
+					//lineStr = checkSqlTabFiled(str,fiveNumber);
+				//}else if(str.startsWith(firstNumber) && !str.contains("*")){
+					//lineStr = checkSqlTabName(str,firstNumber);
+				//}
+				if (str.startsWith(treeNumber) || str.startsWith(fiveNumber) || str.startsWith(firstNumber) && !str.contains("*")) {
+					lineStr = str;
+					if (str.startsWith(treeNumber) || str.startsWith(fiveNumber) && !str.contains("*")) {
+						lineStr = checkSqlTabName(str,firstNumber);
+					}
 				}
-				if (!lineStr.isEmpty() || lineStr != null) {
-					writer.write(lineStr);
-					writer.newLine();
-				}
-				line++;
+				
+				writer.write(lineStr);
+				writer.newLine();
+				lineStr = "";
 			  } 
 		   } catch (Exception e) {
 			    e.printStackTrace();
@@ -82,7 +83,7 @@ public class ConverSqlToTxt {
 			}
 			if (writer != null) {
 				try {
-					reader.readLine();
+					writer.flush();
 					writer.close();
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -98,8 +99,7 @@ public class ConverSqlToTxt {
 	 */
 	private String checkSqlTabFiled(String lineChar,String number){
 		       String str = "";
-		   if (lineChar.contains(number) && !lineChar.trim().contains("_"+number) && !lineChar.trim().contains("*")){
-			   System.out.println("lineChar"+lineChar);
+		       
 			   str = getSplit(lineChar.trim());
 			   str = str.replace(":", "").trim();
 			   String[] splited = str.split("\\s+");
@@ -130,7 +130,6 @@ public class ConverSqlToTxt {
 				str = splited[0]+"!"+splited[1]+"!"+splited[2]+"!"+splited[3];
 			}
 			     
-		   }
 		   System.out.println("checkSqlTabFiled"+str);
 		   return str;
       }
@@ -142,15 +141,13 @@ public class ConverSqlToTxt {
          */
         private  String checkSqlTabName(String lineChar,String number){
 			    String str = "";
-			if (lineChar.contains(number) && !lineChar.trim().contains("_"+number) && !lineChar.trim().contains("*")) {
-				System.out.println("lineChar"+lineChar);
+			    System.out.println("table line"+lineChar);
+			if (lineChar.startsWith(number) && !lineChar.contains("*")) {
 				str = getSplit(lineChar.trim());
 				str = str.replaceFirst("R:", "T:").trim();
 				str = str.replace(":", "").trim();
 				String[] splited = str.split("\\s+");
 				str = splited[0]+"!"+splited[1];
-				//System.out.println("DROP TABLE ODS." + splited[1] + ";");
-				//System.out.println("CREATE TABLE ODS." + splited[1] + "(");
 			}
 			System.out.println("checkSqlTabName"+str);
 			return str;

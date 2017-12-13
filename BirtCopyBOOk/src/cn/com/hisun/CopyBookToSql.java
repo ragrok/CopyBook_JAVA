@@ -48,41 +48,30 @@ public class CopyBookToSql {
 			txtLsit2 = new ArrayList<String>();
 			while((lineChar = txtReader1.readLine()) != null ){
 				if (!lineChar.isEmpty()) {
-					txtLsit1.add(lineChar);
+					txtLsit1.add(lineChar.trim());
 				}
 			}
 			while((lineChar = txtReader2.readLine()) != null ){
 				if (!lineChar.isEmpty()) {
-					txtLsit2.add(lineChar);
+					txtLsit2.add(lineChar.trim());
 				}
 			}
 			
 			for(String txtStr: txtLsit1){
 				String arry1[] = txtStr.split("!");
-			   //System.out.println(Arrays.toString(arry1));
 				for(String txtStr2 : txtLsit2){
 				    String arry2[] = txtStr2.split(",");
-				    //System.out.println(Arrays.toString(arry1));
 				   if(arry1.length == 2 && arry1[0].equals(firstNumber) ){
 					   lineChar = " DROP TABLE "+scheMa+"."+arry1[1]+";"+" \n";
 					   lineChar +=" CREATE TABLE "+scheMa+"."+arry1[1]+" (";
-				   }else if (arry1.length == 3 && !arry1[0].equals(firstNumber)) {
-					   //System.out.println(arry1.length+arry1.toString());
+				   }else if ((arry1.length == 3 || arry1.length == 4) && !arry1[0].equals(firstNumber)) {
 					   if (arry1[0].equals(treeNumber) || arry1[0].equals(fiveNumber)) {
-						   System.out.println(arry1.length+Arrays.toString(arry1));
-						  lineChar =  splitSql(arry1,arry2,lineChar); 
-					   }else {
-						//System.out.println("警告！！！！这不是建表语句");
-					}
-				   }else if (arry1.length == 4 && !arry1[0].equals(firstNumber)) {
-					   //System.out.println(arry1.length+Arrays.toString(arry1));
-					   if (arry1[0].equals(treeNumber) || arry1[0].equals(fiveNumber)) {
-						   System.out.println(arry1.length+arry1.toString());
+						   System.out.println(Arrays.toString(arry1)+"==="+Arrays.toString(arry2));
 						   lineChar =  splitSql(arry1,arry2,lineChar); 
-						}else {
-							//System.out.println("警告！！！！这不是建表语句");
-						}
-				   }
+					   }
+				   }else {
+					System.out.println("这些都是不符合建表的情况");
+				 }
 			   }
 			   writer.write(lineChar);
 			   lineChar = "";
@@ -131,64 +120,62 @@ public class CopyBookToSql {
 	 */
 	private String splitSql(String[] arry1,String[] arry2,String lineChar){
 		if (arry1.length == 3) {
-			if (treeNumber.equals(arry1[0]) && arry1[2].contains(arry2[0])) {
-				if (arry2.length == 3) {
-					if (arry2[1].contains(PIC_X)) {
-						String number = getNumbers(arry2[2]);
-						lineChar = " "+arry1[1]+"\t"+"CAHR("+number+")"+" ,";
-					}else if (arry2[1].contains(PIC_N)) {
-						String number = arry2[2];
-						lineChar = " "+arry1[1]+"\t"+"DEC("+number+",0)"+" ,";
-					}else if (arry2[1].contains(PIC_M)) {
-						int number = Integer.valueOf(getNumbers(arry2[2]));
-						lineChar = " "+arry1[1]+"\t"+"CAHR("+(number*3)+")"+" ,";
-					}
-				}else if (arry2.length == 4) {
-					if (arry2[1].contains(PIC_X)) {
-						String number = getNumbers(arry2[2]);
-						lineChar = " "+arry1[1]+"\t"+"CAHR("+number+")"+" ,";
-					}else if (arry2[1].contains(PIC_N)) {
-						String number = arry2[2];
-						String douNumber = arry2[3];
-						lineChar = " "+arry1[1]+"\t"+"DEC("+number+","+douNumber+")"+",";
-					}else if (arry2[1].contains(PIC_M)) {
-						int number = Integer.valueOf(getNumbers(arry2[2]));
-						lineChar = " "+arry1[1]+"\t"+"CAHR("+(number*3)+")"+" ,";
-					}
-				}
-			}
+			if (treeNumber.equals(arry1[0])) {
+				 //数组中含DIC开头，并且括号中有两个数		
+				if (arry1[2].contains(DIC) && arry1[2].contains(",")) {
+					String[] lineStr = getTwoBranket(arry2[2]);
+				     	
+				 //数组中含DIC开头，并且括号中只有一个数	
+		     }else if (arry1[2].contains(DIC) && !arry1[2].contains(",")) {
+						
+		       }
+			 }else if (fiveNumber.equals(arry1[0])) {
+			  }
 		}else if (arry1.length == 4) {
-			 //PIC的情况 
+			 //第三个数为PIC的情况 ，现在只有这一种情况
 			if (PIC.equals(arry1[2])) {
-				if (arry1[3].contains(PIC_X)) {
-					String number = getNumbers(arry1[3]);
-					lineChar = " "+arry1[1]+"\t"+"CAHR("+number+")"+" ,";
-				}else if (arry1[3].contains(PIC_N)) {
-					
-					String number = arry1[3].replaceAll("PIC_N", ""); 
-					       number = getNumbers(number);
-					lineChar = " "+arry1[1]+"\t"+"DEC("+number+",0)"+" ,";
-				}else if (arry1[3].contains(PIC_M)) {
-					int number = Integer.valueOf(getNumbers(arry1[3]));
-					lineChar = " "+arry1[1]+"\t"+"CAHR("+(number*3)+")"+" ,";
+				System.out.println("PIC:"+Arrays.toString(arry1));
+				if (arry1[3].startsWith(PIC_X)) {
+					String xString = getNumbers(arry1[3]);
+					lineChar = " "+arry1[1];
 				}
-				
-			}else if (arry1.length == 5) {
-				
-			}else {
-				System.out.println("暂时空着");
 			}
+			return lineChar;
+		}else {
+			System.out.println("这些都是异常情况");
 		}
-		System.out.println("lineChar:"+lineChar.toString());
+		System.out.println("lineChar:"+lineChar);
 		return lineChar;
 	}
 	
-    public String getNumbers(String content) {  
+    private String getNumbers(String content) {  
         Pattern pattern = Pattern.compile("\\d+");  
         Matcher matcher = pattern.matcher(content);  
         while (matcher.find()) {  
             return matcher.group(0);  
         }  
         return "";  
+    } 
+    
+    private String getOneBranket(String oneChar){
+    	if (oneChar.contains(DIC+"(")) {
+    		oneChar = oneChar.replace("DIC(", "").trim();
+    		oneChar = oneChar.replace(")", "").trim();
+		}
+    	System.out.println("oneChar:"+oneChar);
+    	return oneChar;
+    }
+    
+    private String[] getTwoBranket(String twoChar){
+    	String[] split = new String[2];
+    	if (twoChar.contains(DIC)) {
+    		twoChar = twoChar.replace("DIC(","").trim();
+    		System.out.println("one twoChar"+twoChar);
+    		twoChar = twoChar.replace(")", "").trim();
+    		System.out.println("two twoChar"+twoChar);
+    		split = twoChar.split(",");
+		}
+    	System.out.println("split.list:"+Arrays.toString(split));
+    	return split;
     } 
 }
