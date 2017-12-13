@@ -55,7 +55,7 @@ public class ConverSqlToTxt {
         try {
 			reader = new BufferedReader(new FileReader(readerFile));
 			writer = new BufferedWriter(new FileWriter(writeFile));
-				while ((str = reader.readLine()) != null){
+				while ((str = reader.readLine()) != null && reader.readLine().length() > 0){
 					str = str.trim();
 				if (str.contains(treeNumber)){
 					lineStr = checkSqlTabFiled(str,treeNumber);
