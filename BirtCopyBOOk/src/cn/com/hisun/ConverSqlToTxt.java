@@ -1,7 +1,5 @@
 package cn.com.hisun;
 
-import org.apache.poi.util.SystemOutLogger;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
@@ -22,9 +20,11 @@ public class ConverSqlToTxt {
     //开始行数
     private final String treeNumber = "03";
     private final String fiveNumber = "05";
+    private final String fourNumber = "49";
     private final String firstNumber = "01";
     private final String DsbNumber = "DSB001";
     private final String DevNumber = "DEVLYF";
+    private final String Comp = "COMP";
 
     //去掉每行的水牌和最后的点
     private String getSplit(String charsString) {
@@ -34,9 +34,9 @@ public class ConverSqlToTxt {
             lsString = lsString.replace(DsbNumber, "").trim();
         } else if (lsString.startsWith(DevNumber)) {
             lsString = lsString.replace(DevNumber, "").trim();
-        } else {
-            lsString = lsString;
-        }
+        }else if (lsString.endsWith(Comp)) {
+        	lsString = lsString.replace(Comp, "").trim();
+		}
         return lsString;
     }
 
@@ -54,16 +54,16 @@ public class ConverSqlToTxt {
             reader = new BufferedReader(new FileReader(readerFile));
             writer = new BufferedWriter(new FileWriter(writeFile));
             while ((str = reader.readLine()) != null) {
-                  System.out.println(str);
                    //对头部进行处理
                    str = str.trim();
                 if (str.startsWith(firstNumber) && str.endsWith(".") && !str.contains("*")) {
                     lineStr = getSplit(str);
                     lineStr = checkSqlTabName(lineStr);
                     //对字段进行处理
-                } else if (str.startsWith(fiveNumber) || str.startsWith(treeNumber) && str.endsWith(".") && !str.contains("*")) {
+                } else if (str.startsWith(fiveNumber) || str.startsWith(fourNumber) || str.startsWith(treeNumber)
+                		&& str.endsWith(".") && !str.contains("*")) {
                     lineStr = getSplit(str);
-                    lineStr = checkSqlTabName(lineStr);
+                    lineStr = checkSqlTabFiled(lineStr);
                 }
                 writer.write(lineStr);
                 writer.newLine();
@@ -90,16 +90,28 @@ public class ConverSqlToTxt {
         }
     }
 
+    
     /**
      * @param lineChar 处理03和05开头的字符串
      * @return 符合规范的字符串
      */
-    private String checkSqlTabFiled(String lineChar) {
-         String str = "";
-
-        str = lineChar.replace(":", "").trim();
-        String[] splited = str.split("\\s+");
-        if (splited.length == 4) {
+    private String checkSqlTabFiled(String lineChar){
+    	String str = "";
+    	
+    	String[] splited = lineChar.split("\\s+");
+    	if (splited[1].contains(":")) {
+			splited[1] = splited[1].replace(":", "").trim();
+		}
+    	
+    	 //去掉第二个数开头的表名
+    	if (splited[1].contains("_")) {
+            String tabName = splited[1];
+            //得到tabName截掉前三位的字符串
+            tabName = tabName.split("\\_{1}")[0];
+            splited[1] = splited[1].replaceFirst(tabName + "_", "").trim();
+        }
+    	
+    	if (splited.length == 4) {
             if (splited[2].contains(",") && splited[2].contains("(") && splited[3].contains(")")) {
                 splited[2] = splited[2] + splited[3];
                 List<String> list = new ArrayList<String>();
@@ -111,27 +123,19 @@ public class ConverSqlToTxt {
                 splited = list.toArray(new String[1]);
             }
         }
-
-        System.out.println("splited"+ Arrays.toString(splited));
-        if (splited[1].contains("_")) {
-            String tabName = splited[2];
-            //得到tabName截掉前三位的字符串
-            tabName = tabName.split("\\_{1}")[0];
-            splited[1] = splited[1].replaceFirst(tabName + "_", "").trim();
-        }
-
-        if (splited.length == 2) {
-            str = splited[0] + "!" + splited[1];
-        } else if (splited.length == 3) {
+    	//if (splited.length == 2) {
+    	//	str = splited[0] + "!" + splited[1];
+		//}else 
+    	if (splited.length == 3) {
             str = splited[0] + "!" + splited[1] + "!" + splited[2];
         } else if (splited.length == 4) {
             str = splited[0] + "!" + splited[1] + "!" + splited[2] + "!" + splited[3];
         }
-
-        System.out.println("checkSqlTabFiled" + str);
-        return str;
+    	
+    	return str.trim();
     }
-
+    
+    
     /**
      * @param lineChar 行数
      * @return 符合规范的字符
@@ -143,9 +147,8 @@ public class ConverSqlToTxt {
         str = str.replace(":", "").trim();
         String[] splited = str.split("\\s+");
         str = splited[0] + "!" + splited[1];
-        System.out.println("checkSqlTabName" + str);
-
-        return str;
+        System.out.println("str"+str);
+        return str.trim();
     }
 
 
