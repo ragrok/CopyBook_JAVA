@@ -6,8 +6,9 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+
 
 
 /**
@@ -20,6 +21,7 @@ public class ConverSqlToTxt {
     //开始行数
     private final String treeNumber = "03";
     private final String fiveNumber = "05";
+    private final String sevenNumber = "07";
     private final String fourNumber = "49";
     private final String firstNumber = "01";
     private final String DsbNumber = "DSB001";
@@ -50,20 +52,26 @@ public class ConverSqlToTxt {
         BufferedWriter writer = null;
         String str = "";
         String lineStr = "";
+        List<String> keyList = null;
+        int lineInt = 0;
         try {
             reader = new BufferedReader(new FileReader(readerFile));
             writer = new BufferedWriter(new FileWriter(writeFile));
+            keyList = new ArrayList<String>();
+            
             while ((str = reader.readLine()) != null) {
                    //对头部进行处理
                    str = str.trim();
                 if (str.startsWith(firstNumber) && str.endsWith(".") && !str.contains("*")) {
+                	lineInt++;
                     lineStr = getSplit(str);
-                    lineStr = checkSqlTabName(lineStr);
+                    lineStr = checkSqlTabName(lineStr,keyList,lineInt);
                     //对字段进行处理
                 } else if (str.startsWith(fiveNumber) || str.startsWith(fourNumber) || str.startsWith(treeNumber)
-                		&& str.endsWith(".") && !str.contains("*")) {
+                		&& str.endsWith(".") && !str.contains("*") || str.startsWith(sevenNumber)) {
                     lineStr = getSplit(str);
                     lineStr = checkSqlTabFiled(lineStr);
+                    keyList  = getKeys(lineStr,(ArrayList<String>) keyList);
                 }
                 writer.write(lineStr);
                 writer.newLine();
@@ -123,15 +131,18 @@ public class ConverSqlToTxt {
                 splited = list.toArray(new String[1]);
             }
         }
+    	
     	//if (splited.length == 2) {
     	//	str = splited[0] + "!" + splited[1];
-		//}else 
+		//}
     	if (splited.length == 3) {
             str = splited[0] + "!" + splited[1] + "!" + splited[2];
         } else if (splited.length == 4) {
             str = splited[0] + "!" + splited[1] + "!" + splited[2] + "!" + splited[3];
+        }else if (splited.length == 6) {
+            str = splited[0] + "!" + splited[1] + "!" + splited[2] + "!" + splited[3]+ "!" + splited[4]+ "!" + splited[5];
         }
-    	
+    	//keyList  =  getKeys(arry1,(ArrayList<String>) keyList);
     	return str.trim();
     }
     
@@ -140,16 +151,38 @@ public class ConverSqlToTxt {
      * @param lineChar 行数
      * @return 符合规范的字符
      */
-    private String checkSqlTabName(String lineChar) {
+    private String checkSqlTabName(String lineChar,List<String> keys,int lineInt) {
         String str = "";
+        StringBuilder builder = new StringBuilder();
 
         str = lineChar.replaceFirst("R:", "T:").trim();
         str = str.replace(":", "").trim();
         String[] splited = str.split("\\s+");
         str = splited[0] + "!" + splited[1];
-        System.out.println("str"+str);
-        return str.trim();
+        if (keys.isEmpty() && lineInt > 1) {
+        	System.out.println("lineInt"+lineInt);
+        	builder.append("06!KEY \n \n");
+		}else if (!keys.isEmpty() && lineInt > 1) {
+        	String keyStr= keys.toString();
+			System.out.println("KEY"+keyStr);
+			keyStr = keyStr.replaceFirst("\\[", "").trim();
+			keyStr = keyStr.replaceFirst("\\]", "").trim();
+			builder.append("06!PRIMARY KEY("+keyStr+") \n \n");
+			keys.clear();
+		}
+        builder.append(str);
+        System.out.println("builder.tostring"+builder.toString());
+        return builder.toString();
     }
-
+ 
+    private List<String> getKeys(String txtStr,ArrayList<String> list){
+    	String str[] = txtStr.split("!");
+    	if (fiveNumber.equals(str[0])) {
+    		list.add(str[1]);
+    		list = new ArrayList(new HashSet(list)); 
+        }
+    	System.out.println("list arry"+list.toString());
+    	return list;
+   } 
 
 }
