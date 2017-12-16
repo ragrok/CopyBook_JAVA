@@ -1,13 +1,18 @@
 package cn.com.hisun;
 
+import java.awt.geom.Ellipse2D;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+
+import org.apache.poi.hwpf.model.PropertyNode.EndComparator;
 
 
 /**
@@ -26,6 +31,7 @@ public class ConverSqlToTxt {
     private final String DsbNumber = "DSB001";
     private final String DevNumber = "DEVLYF";
     private final String Comp = "COMP";
+    private final String KEY = "KEY";
 
     //去掉每行的水牌和最后的点
     private String getSplit(String charsString) {
@@ -49,28 +55,43 @@ public class ConverSqlToTxt {
     public void readBookFileByLine(String readerFile, String writeFile) {
         BufferedReader reader = null;
         BufferedWriter writer = null;
-        String str = "";
+        String linestr = "";
         String lineStr = "";
         List<String> keyList = null;
+        List<String> txtLsit1 = null;
+        boolean startFlag = false;
+        boolean endFlag = false;
         int lineInt = 0;
         try {
             reader = new BufferedReader(new FileReader(readerFile));
             writer = new BufferedWriter(new FileWriter(writeFile));
+            txtLsit1 = new ArrayList<String>();
             keyList = new ArrayList<String>();
 
-            while ((str = reader.readLine()) != null) {
-                //对头部进行处理
-                str = str.trim();
+            while ((linestr = reader.readLine()) != null) {
+            	  if (!linestr.isEmpty()) {
+					txtLsit1.add(linestr.trim());
+				}
+            }
+            //最后添加一个数据，防止最后一个key为空
+            txtLsit1.add("01 TA:BLE:.");
+            
+            for(String str  : txtLsit1){
+            	//对头部进行处理
                 if (str.startsWith(firstNumber) && str.endsWith(".") && !str.contains("*")) {
                     lineInt++;
                     lineStr = getSplit(str);
                     lineStr = checkSqlTabName(lineStr, keyList, lineInt);
+                    startFlag = false;
+                    endFlag = false;
                     //对字段进行处理
                 } else if (str.startsWith(fiveNumber) || str.startsWith(fourNumber) || str.startsWith(treeNumber)
                         && str.endsWith(".") && !str.contains("*") || str.startsWith(sevenNumber)) {
                     lineStr = getSplit(str);
+                    startFlag = checkTabKeyStart(lineStr,startFlag);
+                    endFlag = checkTabKeyEnd(lineStr,endFlag);
                     lineStr = checkSqlTabFiled(lineStr);
-                    keyList = getKeys(lineStr, (ArrayList<String>) keyList);
+                    keyList = getKeys(lineStr, (ArrayList<String>) keyList,startFlag,endFlag);
                 }
                 writer.write(lineStr);
                 writer.newLine();
@@ -131,17 +152,14 @@ public class ConverSqlToTxt {
             }
         }
 
-        //if (splited.length == 2) {
-        //	str = splited[0] + "!" + splited[1];
-        //}
+
         if (splited.length == 3) {
             str = splited[0] + "!" + splited[1] + "!" + splited[2];
         } else if (splited.length == 4) {
             str = splited[0] + "!" + splited[1] + "!" + splited[2] + "!" + splited[3];
-        } else if (splited.length == 6) {
+        } else if (splited.length == 6 && splited[1].equals(sevenNumber)) {
             str = splited[0] + "!" + splited[1]  + "!" + splited[3] + "!" + splited[4] + "!" + splited[5];
         }
-        //keyList  =  getKeys(arry1,(ArrayList<String>) keyList);
         return str.trim();
     }
 
@@ -159,29 +177,66 @@ public class ConverSqlToTxt {
         String[] splited = str.split("\\s+");
         str = splited[0] + "!" + splited[1];
         if (keys.isEmpty() && lineInt > 1) {
-            System.out.println("lineInt" + lineInt);
             builder.append("06!KEY \n \n");
         } else if (!keys.isEmpty() && lineInt > 1) {
+        	//倒序
+        	//Collections.reverse(keys);
             String keyStr = keys.toString();
-            System.out.println("KEY" + keyStr);
+            System.out.println("keyStr:"+keyStr);
             keyStr = keyStr.replaceFirst("\\[", "").trim();
             keyStr = keyStr.replaceFirst("\\]", "").trim();
             builder.append("06!PRIMARY KEY(" + keyStr + ") \n \n");
             keys.clear();
         }
         builder.append(str);
-        System.out.println("builder.tostring" + builder.toString());
         return builder.toString();
     }
 
-    private List<String> getKeys(String txtStr, ArrayList<String> list) {
+    private List<String> getKeys(String txtStr, ArrayList<String> list,boolean startFlag,boolean endFlag) {
         String str[] = txtStr.split("!");
-        if (fiveNumber.equals(str[0])) {
+        System.out.println("Start Flag : "+startFlag+" End Flag : "+endFlag);
+        if (fiveNumber.equals(str[0]) && startFlag && !endFlag) {
             list.add(str[1]);
             list = new ArrayList(new HashSet(list));
         }
         System.out.println("list arry" + list.toString());
         return list;
+    }
+    
+    private boolean checkTabKeyStart(String txtStr,boolean flag){
+    	txtStr = getFirstTwoChar(txtStr);
+    	String str[] = txtStr.split("!");
+    	if (treeNumber.equals(str[0])  && KEY.equals(str[1]) ) {
+    		 flag = true;
+		}
+    	return flag;
+    }
+    
+    private boolean checkTabKeyEnd(String txtStr,boolean flag){
+    	txtStr = getFirstTwoChar(txtStr);
+    	String str[] = txtStr.split("!");
+    	if (treeNumber.equals(str[0])  && !KEY.equals(str[1])) {
+    		flag = true; 
+		}
+    	return flag;
+    }
+    
+    private String getFirstTwoChar(String lineChar){
+    	String[] splited = lineChar.split("\\s+");
+    	String str = "";
+        if (splited[1].contains(":")) {
+            splited[1] = splited[1].replace(":", "").trim();
+        }
+
+        //去掉第二个数开头的表名
+        if (splited[1].contains("_")) {
+            String tabName = splited[1];
+            //得到tabName截掉前三位的字符串
+            tabName = tabName.split("\\_{1}")[0];
+            splited[1] = splited[1].replaceFirst(tabName + "_", "").trim();
+        }
+        str = splited[0]+"!"+splited[1];  
+        return str;
     }
 
 }

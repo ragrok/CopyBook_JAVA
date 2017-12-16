@@ -69,7 +69,7 @@ public class CopyBookToSql {
             for (String txtStr : txtLsit1) {
                 String arry1[] = txtStr.split("!");
                 //新建文件，新建输出流，增加建表语句
-                if (arry1[0].equals(firstNumber)) {
+                if (arry1[0].equals(firstNumber) && !arry1[1].equals("TABLE")) {
                     lineChar = "\n";
                     lineChar += "DROP TABLE " + scheMa + "." + arry1[1] + ";" + " \n \n";
                     lineChar += "CREATE TABLE " + scheMa + "." + arry1[1] + " (";
@@ -90,7 +90,7 @@ public class CopyBookToSql {
                         builder.append("IN TBS_REPORT_DATA INDEX IN TBS_REPORT_INDEX COMPRESS YES; \n\n");
                         lineChar = builder.toString();
                     } else {
-                        System.out.println("这些都是不符合建表的情况");
+                       // System.out.println("这些都是不符合建表的情况");
                     }
                 }
                 writer.write(lineChar);
@@ -223,7 +223,7 @@ public class CopyBookToSql {
                         // V类型
                         if (PIC_V.equals(arry2[1])) {
                             int num = Integer.valueOf(arry2[2]);
-                            System.out.println("警告！！！！！这是" + PIC_V + "的情况");
+                            //System.out.println("警告！！！！！这是" + PIC_V + "的情况");
                             if (num >= 255) {
                                 lineChar = arry1[1] + "\t" + "VARCHAR(" + num + ")" + "\t" + "DEFAULT ' ' NOT NULL,";
                             } else {
@@ -250,9 +250,8 @@ public class CopyBookToSql {
             lineChar = builder.toString();
 
         } else {
-            System.out.println("这些都是异常情况");
+           // System.out.println("这些都是异常情况");
         }
-        System.out.println("lineChar:" + lineChar);
         return lineChar;
     }
 
