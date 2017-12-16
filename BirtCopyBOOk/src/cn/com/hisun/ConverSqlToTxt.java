@@ -10,7 +10,6 @@ import java.util.HashSet;
 import java.util.List;
 
 
-
 /**
  * @author lihongjian, 20171208
  * @category 处理copyBook数据结构，抽取copybook表中的原始结构，放在一个临时txt文件中，等待CopyBookToSql处理
@@ -36,9 +35,9 @@ public class ConverSqlToTxt {
             lsString = lsString.replace(DsbNumber, "").trim();
         } else if (lsString.startsWith(DevNumber)) {
             lsString = lsString.replace(DevNumber, "").trim();
-        }else if (lsString.endsWith(Comp)) {
-        	lsString = lsString.replace(Comp, "").trim();
-		}
+        } else if (lsString.endsWith(Comp)) {
+            lsString = lsString.replace(Comp, "").trim();
+        }
         return lsString;
     }
 
@@ -58,28 +57,28 @@ public class ConverSqlToTxt {
             reader = new BufferedReader(new FileReader(readerFile));
             writer = new BufferedWriter(new FileWriter(writeFile));
             keyList = new ArrayList<String>();
-            
+
             while ((str = reader.readLine()) != null) {
-                   //对头部进行处理
-                   str = str.trim();
+                //对头部进行处理
+                str = str.trim();
                 if (str.startsWith(firstNumber) && str.endsWith(".") && !str.contains("*")) {
-                	lineInt++;
+                    lineInt++;
                     lineStr = getSplit(str);
-                    lineStr = checkSqlTabName(lineStr,keyList,lineInt);
+                    lineStr = checkSqlTabName(lineStr, keyList, lineInt);
                     //对字段进行处理
                 } else if (str.startsWith(fiveNumber) || str.startsWith(fourNumber) || str.startsWith(treeNumber)
-                		&& str.endsWith(".") && !str.contains("*") || str.startsWith(sevenNumber)) {
+                        && str.endsWith(".") && !str.contains("*") || str.startsWith(sevenNumber)) {
                     lineStr = getSplit(str);
                     lineStr = checkSqlTabFiled(lineStr);
-                    keyList  = getKeys(lineStr,(ArrayList<String>) keyList);
+                    keyList = getKeys(lineStr, (ArrayList<String>) keyList);
                 }
                 writer.write(lineStr);
                 writer.newLine();
                 lineStr = "";
             }
         } catch (Exception e) {
-             e.printStackTrace();
-          } finally {
+            e.printStackTrace();
+        } finally {
             if (reader != null) {
                 try {
                     reader.close();
@@ -98,28 +97,28 @@ public class ConverSqlToTxt {
         }
     }
 
-    
+
     /**
      * @param lineChar 处理03和05开头的字符串
      * @return 符合规范的字符串
      */
-    private String checkSqlTabFiled(String lineChar){
-    	String str = "";
-    	
-    	String[] splited = lineChar.split("\\s+");
-    	if (splited[1].contains(":")) {
-			splited[1] = splited[1].replace(":", "").trim();
-		}
-    	
-    	 //去掉第二个数开头的表名
-    	if (splited[1].contains("_")) {
+    private String checkSqlTabFiled(String lineChar) {
+        String str = "";
+
+        String[] splited = lineChar.split("\\s+");
+        if (splited[1].contains(":")) {
+            splited[1] = splited[1].replace(":", "").trim();
+        }
+
+        //去掉第二个数开头的表名
+        if (splited[1].contains("_")) {
             String tabName = splited[1];
             //得到tabName截掉前三位的字符串
             tabName = tabName.split("\\_{1}")[0];
             splited[1] = splited[1].replaceFirst(tabName + "_", "").trim();
         }
-    	
-    	if (splited.length == 4) {
+
+        if (splited.length == 4) {
             if (splited[2].contains(",") && splited[2].contains("(") && splited[3].contains(")")) {
                 splited[2] = splited[2] + splited[3];
                 List<String> list = new ArrayList<String>();
@@ -131,27 +130,27 @@ public class ConverSqlToTxt {
                 splited = list.toArray(new String[1]);
             }
         }
-    	
-    	//if (splited.length == 2) {
-    	//	str = splited[0] + "!" + splited[1];
-		//}
-    	if (splited.length == 3) {
+
+        //if (splited.length == 2) {
+        //	str = splited[0] + "!" + splited[1];
+        //}
+        if (splited.length == 3) {
             str = splited[0] + "!" + splited[1] + "!" + splited[2];
         } else if (splited.length == 4) {
             str = splited[0] + "!" + splited[1] + "!" + splited[2] + "!" + splited[3];
-        }else if (splited.length == 6) {
-            str = splited[0] + "!" + splited[1] + "!" + splited[2] + "!" + splited[3]+ "!" + splited[4]+ "!" + splited[5];
+        } else if (splited.length == 6) {
+            str = splited[0] + "!" + splited[1]  + "!" + splited[3] + "!" + splited[4] + "!" + splited[5];
         }
-    	//keyList  =  getKeys(arry1,(ArrayList<String>) keyList);
-    	return str.trim();
+        //keyList  =  getKeys(arry1,(ArrayList<String>) keyList);
+        return str.trim();
     }
-    
-    
+
+
     /**
      * @param lineChar 行数
      * @return 符合规范的字符
      */
-    private String checkSqlTabName(String lineChar,List<String> keys,int lineInt) {
+    private String checkSqlTabName(String lineChar, List<String> keys, int lineInt) {
         String str = "";
         StringBuilder builder = new StringBuilder();
 
@@ -160,29 +159,29 @@ public class ConverSqlToTxt {
         String[] splited = str.split("\\s+");
         str = splited[0] + "!" + splited[1];
         if (keys.isEmpty() && lineInt > 1) {
-        	System.out.println("lineInt"+lineInt);
-        	builder.append("06!KEY \n \n");
-		}else if (!keys.isEmpty() && lineInt > 1) {
-        	String keyStr= keys.toString();
-			System.out.println("KEY"+keyStr);
-			keyStr = keyStr.replaceFirst("\\[", "").trim();
-			keyStr = keyStr.replaceFirst("\\]", "").trim();
-			builder.append("06!PRIMARY KEY("+keyStr+") \n \n");
-			keys.clear();
-		}
+            System.out.println("lineInt" + lineInt);
+            builder.append("06!KEY \n \n");
+        } else if (!keys.isEmpty() && lineInt > 1) {
+            String keyStr = keys.toString();
+            System.out.println("KEY" + keyStr);
+            keyStr = keyStr.replaceFirst("\\[", "").trim();
+            keyStr = keyStr.replaceFirst("\\]", "").trim();
+            builder.append("06!PRIMARY KEY(" + keyStr + ") \n \n");
+            keys.clear();
+        }
         builder.append(str);
-        System.out.println("builder.tostring"+builder.toString());
+        System.out.println("builder.tostring" + builder.toString());
         return builder.toString();
     }
- 
-    private List<String> getKeys(String txtStr,ArrayList<String> list){
-    	String str[] = txtStr.split("!");
-    	if (fiveNumber.equals(str[0])) {
-    		list.add(str[1]);
-    		list = new ArrayList(new HashSet(list)); 
+
+    private List<String> getKeys(String txtStr, ArrayList<String> list) {
+        String str[] = txtStr.split("!");
+        if (fiveNumber.equals(str[0])) {
+            list.add(str[1]);
+            list = new ArrayList(new HashSet(list));
         }
-    	System.out.println("list arry"+list.toString());
-    	return list;
-   } 
+        System.out.println("list arry" + list.toString());
+        return list;
+    }
 
 }

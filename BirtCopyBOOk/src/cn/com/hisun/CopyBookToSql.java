@@ -61,6 +61,7 @@ public class CopyBookToSql {
 					txtLsit1.add(lineChar.trim());
 				}
 			}
+
 			while ((lineChar = txtReader2.readLine()) != null) {
 				if (!lineChar.isEmpty()) {
 					txtLsit2.add(lineChar.trim());
@@ -68,15 +69,12 @@ public class CopyBookToSql {
 			}
               //循环CopyBook
 			  for (String txtStr : txtLsit1) {
-				 
 				 String arry1[] = txtStr.split("!");
 				  //新建文件，新建输出流，增加建表语句
 				if (arry1[0].equals(firstNumber)) {
 					lineChar = "\n";
 					lineChar += "DROP TABLE " + scheMa + "." + arry1[1] + ";" + " \n \n";
 					lineChar += "CREATE TABLE " + scheMa + "." + arry1[1] + " (";
-					//fileWt = new FileWriter(sqlPath + arry1[1] + ".sql");
-					//writer = new BufferedWriter(fileWt);
 				}
 				
 				  //循环数据字典，匹配字段长度，输出建表语句
@@ -101,13 +99,6 @@ public class CopyBookToSql {
 				lineChar = "";
 				writer.newLine();
 				
-//				//关闭输出流				 						
-//				 if (arry1[0].equals(sixNumber)) {
-//					fileWt.flush();
-//					writer.flush();
-//					fileWt.close();
-//					writer.close();
-//				}
 			}
 		} catch (Exception e) {
 			// TODO: handle exception
@@ -147,11 +138,11 @@ public class CopyBookToSql {
 
 	//
 	/**
-	 * @param arry1
-	 *            存放表中字段的数据，以03和05开头，长度在3和4之间
-	 * @param arr2
-	 *            存放数据字典的对应表类型的数据，DIC需要参考数据字典，PIC不需要参考数据字典，直接拿就行
-	 * @param builder
+	 *@param arry1
+	 *
+	 * @param arry2  存放表中字段的数据，以03和05开头，长度在3和4之间
+	 *
+	 * @param lineChar 存放数据字典的对应表类型的数据，DIC需要参考数据字典，PIC不需要参考数据字典，直接拿就行
 	 * @return
 	 */
 	private String splitSql(String[] arry1, String[] arry2, String lineChar) {
@@ -161,10 +152,16 @@ public class CopyBookToSql {
 				// 以X开头的
 				if (arry1[3].startsWith(PIC_X)) {
 					String number = getNumbers(arry1[3]);
+					if(number.startsWith("0")){
+						number = number.replaceFirst("0","");
+					}
 					lineChar = arry1[1] + "\t" + "CHAR(" + number + ")" + "\t" + "DEFAULT ' ' NOT NULL ,";
 				} else if (arry1[3].startsWith(PIC_S)) {
 					String number = getSNine(arry1[3]);
 					lineChar = arry1[1] + "\t" + "DECIMAL(" + number + ",0)" + "\t" + "DEFAULT 0 NOT NULL,";
+				}else if (arry1[3].startsWith(PIC_N)) {
+					int number = Integer.valueOf(getNumbers(arry1[3]));
+					lineChar = arry1[1] + "\t" + "DECIMAL(" + number + ",0)" + "\t" + "DEFAULT 0 NOT NULL ,";
 				}
 
 			} else if (arry1[2].startsWith(DIC)) {
@@ -304,11 +301,11 @@ public class CopyBookToSql {
 			}
 		} else if (arry1[0].equals(sevenNumber)) {
 			String filedName = arry1[1];
-			int fileNumber = Integer.valueOf(arry1[3]);
+			int fileNumber = Integer.valueOf(arry1[2]);
 			StringBuilder builder = new StringBuilder();
 			
-			if ((arry1[3]).startsWith(PIC_N+"(")) {
-				String str = getNine(arry1[6]);
+			if ((arry1[3]).startsWith(PIC)) {
+				String str = getNine(arry1[4]);
 				lineChar = "DECIMAL(" + str + ",0)" + "\t" + "DEFAULT 0 NOT NULL,";
 			}
 			
@@ -359,7 +356,9 @@ public class CopyBookToSql {
 		String str = "";
 		str = content.replace("9(","").trim();
 		str = str.replace(")", "");
-		System.out.println("trim()9"+str);
+		if (str.startsWith("0")){
+			str = str.replaceFirst("0","");
+		}
 		return str.trim();
 	}
 }
