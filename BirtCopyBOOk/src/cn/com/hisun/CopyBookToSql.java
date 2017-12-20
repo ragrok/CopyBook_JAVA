@@ -5,6 +5,7 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.channels.NonWritableChannelException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -30,6 +31,7 @@ public class CopyBookToSql {
     private final String DIC = "DIC";
     private final String KEY = "KEY";
     private final String PIC_S = "S9";
+    private final String PIC_SS ="S";
     private final String PIC_V = "V";
 
     /**
@@ -38,29 +40,34 @@ public class CopyBookToSql {
      */
     public void copyBookTosql(String txtPath1, String txtPath2, String sqlPath, String scheMa) {
 
-        BufferedReader txtReader1 = null;
-        BufferedReader txtReader2 = null;
+        BufferedReader txtBuff1 = null;
+        BufferedReader txtBuff2 = null;
         List<String> txtLsit1 = null;
         List<String> txtLsit2 = null;
+        List<String> txtLsit3 = null;
         BufferedWriter writer = null;
-        FileWriter fileWt = null;
-
+        FileReader txtReader1 = null;
+        FileReader txtReader2= null;
+        FileWriter txtWrite = null;
         try {
             String lineChar = null;
-            txtReader1 = new BufferedReader(new FileReader(txtPath1));
-            txtReader2 = new BufferedReader(new FileReader(txtPath2));
-            fileWt = new FileWriter(sqlPath);
-            writer = new BufferedWriter(fileWt);
+            txtReader1 = new FileReader(txtPath1);
+            txtReader2 = new FileReader(txtPath2);
+            txtBuff1 = new BufferedReader(txtReader1);
+            txtBuff2 = new BufferedReader(txtReader2);
+            txtWrite = new FileWriter(sqlPath);
+            writer = new BufferedWriter(txtWrite);
             txtLsit1 = new ArrayList<String>();
             txtLsit2 = new ArrayList<String>();
+            txtLsit3 = new ArrayList<String>();
 
-            while ((lineChar = txtReader1.readLine()) != null) {
+            while ((lineChar = txtBuff1.readLine()) != null) {
                 if (!lineChar.isEmpty()) {
                     txtLsit1.add(lineChar.trim());
                 }
             }
 
-            while ((lineChar = txtReader2.readLine()) != null) {
+            while ((lineChar = txtBuff2.readLine()) != null) {
                 if (!lineChar.isEmpty()) {
                     txtLsit2.add(lineChar.trim());
                 }
@@ -93,39 +100,51 @@ public class CopyBookToSql {
                        // System.out.println("这些都是不符合建表的情况");
                     }
                 }
-                writer.write(lineChar);
+                txtLsit3.add(lineChar);
+                //writer.write(lineChar);
+                //writer.newLine();
                 lineChar = "";
-                writer.newLine();
-
             }
+            
+            //去掉最后一行的逗号
+            for(int i=1; i < txtLsit3.size();i++){
+            	
+            	if (txtLsit3.get(i).trim().startsWith(")") && txtLsit3.get(i-1).trim().endsWith(",")) {
+					String value = (txtLsit3.get(i-1).trim()).replace(","," ");
+					txtLsit3.set(i-1, value);
+				}
+            	System.out.println("内容"+txtLsit3.get(i-1).trim());
+            	writer.write(txtLsit3.get(i-1).trim());
+            	writer.newLine();
+            }
+            
         } catch (Exception e) {
             // TODO: handle exception
             // 关闭资源
         } finally {
-            if (txtReader1 != null) {
+
+        	if (txtBuff1 != null) {
                 try {
-                    txtReader1.close();
+                	txtBuff1.close();
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             }
 
-            if (txtReader2 != null) {
+            if (txtBuff2 != null) {
                 try {
-                    txtReader2.close();
+                	txtBuff2.close();
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             }
 
-            if (fileWt != null || writer != null) {
+            if (writer != null) {
                 try {
-                    fileWt.flush();
-                    writer.flush();
-                    fileWt.close();
-                    writer.close();
+                	writer.close();
+                	txtWrite.close();
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
@@ -150,9 +169,13 @@ public class CopyBookToSql {
                 if (arry1[3].startsWith(PIC_X)) {
                     String number = getNumbers(arry1[3]);
                     if (Integer.valueOf(number) != 26) {
-                        lineChar = arry1[1] + "\t" + "CHAR(" + number + ")" + "\t" + "DEFAULT ' ' NOT NULL ,";
+                    	if (Integer.valueOf(number)>255) {
+                    	 lineChar = arry1[1] + "\t" + "VARCHAR(" + number + ")" + "\t" + "DEFAULT ' ' NOT NULL ,";
+						}else {
+						  lineChar = arry1[1] + "\t" + "CHAR(" + number + ")" + "\t" + "DEFAULT ' ' NOT NULL ,";
+						}
                     } else {
-                        lineChar = arry1[1] + "\t" + "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ,";
+                        lineChar = arry1[1] + "\t" + "TIMESTAMP NOT NULL ,";
                     }
                 } else if (arry1[3].startsWith(PIC_S)) {
                     String number = getSNine(arry1[3]);
@@ -163,14 +186,18 @@ public class CopyBookToSql {
                 }
 
             } else if (arry1[2].startsWith(DIC)) {
-                // 第三个数中不带有逗号
+                // 第三个数中带有逗号
                 if (arry1[2].contains(",")) {
                     String str = getTwoBranket(arry1[2])[0];
                     // 匹配到某个关键字
                     if (arry2[0].equals(str)) {
                         // X类型
                         if (PIC_X.equals(arry2[1])) {
-                            lineChar = arry1[1] + "\t" + "CHAR(" + arry2[2] + ")" + "\t" + "DEFAULT ' ' NOT NULL,";
+                        	if (Integer.valueOf(arry2[2])>255) {
+                           	 lineChar = arry1[1] + "\t" + "VARCHAR(" + arry2[2] + ")" + "\t" + "DEFAULT ' ' NOT NULL ,";
+       						}else {
+       						  lineChar = arry1[1] + "\t" + "CHAR(" + arry2[2] + ")" + "\t" + "DEFAULT ' ' NOT NULL ,";
+       						}
                         }
                         // N类型
                         if (PIC_N.equals(arry2[1])) {
@@ -196,22 +223,30 @@ public class CopyBookToSql {
                                 lineChar = arry1[1] + "\t" + "CHAR(" + num + ")" + "\t" + "DEFAULT ' ' NOT NULL,";
                             }
                         }
+                        // S类型
+                        if (PIC_SS.equals(arry2[1])) {
+                                lineChar = arry1[1] + "\t" + "DECIMAL(" + arry2[2] + "," + arry2[3] + ")" + "\t" + "DEFAULT 0 NOT NULL,";
+                            
+                        }
                     }
-                    // 第三个数带有逗号
+                    // 第三个数不带有逗号
                 } else if (!arry1[2].contains(",")) {
                     String str = getOneBranket(arry1[2]);
                     // 匹配到某个关键字
                     if (arry2[0].equals(str)) {
                         // X类型
                         if (PIC_X.equals(arry2[1])) {
-                            lineChar = arry1[1] + "\t" + "CHAR(" + arry2[2] + ")" + "\t" + "DEFAULT ' ' NOT NULL,";
+                        	if (Integer.valueOf(arry2[2])>255) {
+                              	  lineChar = arry1[1] + "\t" + "VARCHAR(" + arry2[2] + ")" + "\t" + "DEFAULT ' ' NOT NULL ,";
+          					 }else {
+          						  lineChar = arry1[1] + "\t" + "CHAR(" + arry2[2] + ")" + "\t" + "DEFAULT ' ' NOT NULL ,";
+          				   }
                         }
                         // N类型
                         if (PIC_N.equals(arry2[1])) {
-                            lineChar = arry1[1] + "\t" + "DECIMAL(" + arry2[2] + "," + arry2[3] + ")" + "\t"
-                                    + "DEFAULT 0 NOT NULL,";
+                            lineChar = arry1[1] + "\t" + "DECIMAL(" + arry2[2] + "," + arry2[3] + ")" + "\t" + "DEFAULT 0 NOT NULL,";
                         }
-                        // M类型
+                        // M类型 
                         if (PIC_M.equals(arry2[1])) {
                             int num = Integer.valueOf(arry2[2]) * 3;
                             if (num >= 255) {
@@ -229,6 +264,12 @@ public class CopyBookToSql {
                             } else {
                                 lineChar = arry1[1] + "\t" + "CHAR(" + num + ")" + "\t" + "DEFAULT ' ' NOT NULL,";
                             }
+                        }
+                     // S类型
+                        if (PIC_SS.equals(arry2[1])) {
+                        	   System.out.println("我是s类型");
+                                lineChar = arry1[1] + "\t" + "DECIMAL(" + arry2[2] + "," + arry2[3] + ")" + "\t" + "DEFAULT 0 NOT NULL,";
+                            
                         }
                     }
                 }

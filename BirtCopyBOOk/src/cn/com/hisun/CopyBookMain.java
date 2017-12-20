@@ -10,14 +10,24 @@ import java.io.IOException;
  */
 public class CopyBookMain {
             public static void main(String[] args) throws IOException {
-         	ConverSqlToTxt sqlToTxt = new ConverSqlToTxt();
-		    sqlToTxt.readBookFileByLine("E:\\git\\Practice_JAVA\\IBSC_BOOK_1.SQL","E:\\git\\Practice_JAVA\\IBSC_BOOK_1.txt");
-		    //CoverExcelToTxt excel = new CoverExcelToTxt();
-			//excel.checkExcelValid("H:\\github\\Practice_JAVA\\大新银行新核心系统项目_香港_数据字典_V2.07.xlsx");
-		    //excel.readerExcel("H:\\github\\Practice_JAVA\\大新银行新核心系统项目_香港_数据字典_V2.07.xlsx","H:\\github\\Practice_JAVA\\IBSC_BOOK_2.txt");
+            	
+            //接收shell脚本传递过来的参数
+            String copyBookSql = args[0];
+            String copyBookTxt = args[1];
+            String copyBookPath = args[2];
+            String dir_txt = args[3];
+            String schema = args[4]; 
+            
+            //组合
+            System.out.println("copyBookSql: "+copyBookSql);
+            System.out.println("copyBookTxt: "+copyBookTxt);
+            System.out.println("copyBook: "+copyBookPath);
+            System.out.println("dir_txt: "+dir_txt);
+            System.out.println("schema: "+schema);
+            
+         	ConverSqlToTxt sqlToTxt = new ConverSqlToTxt(); 
+		    sqlToTxt.readBookFileByLine(copyBookSql,copyBookTxt);
 		    CopyBookToSql sql = new CopyBookToSql();
-		    sql.copyBookTosql("E:\\git\\Practice_JAVA\\IBSC_BOOK_1.txt","E:\\git\\Practice_JAVA\\dict.dat"
-		    		//,"H:\\github\\Practice_JAVA\\SQL\\","ODS");
-		    		,"E:\\git\\Practice_JAVA\\IBSC_BOOK_2.sql","ODS");
+		    sql.copyBookTosql(copyBookTxt,dir_txt,copyBookPath,schema);
 		}
 }

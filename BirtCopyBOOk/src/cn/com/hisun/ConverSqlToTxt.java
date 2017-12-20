@@ -1,18 +1,14 @@
 package cn.com.hisun;
 
-import java.awt.geom.Ellipse2D;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 
-import org.apache.poi.hwpf.model.PropertyNode.EndComparator;
 
 
 /**
@@ -55,6 +51,8 @@ public class ConverSqlToTxt {
     public void readBookFileByLine(String readerFile, String writeFile) {
         BufferedReader reader = null;
         BufferedWriter writer = null;
+        FileReader fileReader = null;
+        FileWriter fileWriter = null;
         String linestr = "";
         String lineStr = "";
         List<String> keyList = null;
@@ -63,8 +61,10 @@ public class ConverSqlToTxt {
         boolean endFlag = false;
         int lineInt = 0;
         try {
-            reader = new BufferedReader(new FileReader(readerFile));
-            writer = new BufferedWriter(new FileWriter(writeFile));
+        	fileReader = new FileReader(readerFile);
+            reader = new BufferedReader(fileReader);
+            fileWriter = new FileWriter(writeFile);
+            writer = new BufferedWriter(fileWriter);
             txtLsit1 = new ArrayList<String>();
             keyList = new ArrayList<String>();
 
@@ -102,15 +102,16 @@ public class ConverSqlToTxt {
         } finally {
             if (reader != null) {
                 try {
-                    reader.close();
+                	reader.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
+            
             if (writer != null) {
                 try {
-                    writer.flush();
-                    writer.close();
+                	writer.close();
+                    fileWriter.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -182,7 +183,6 @@ public class ConverSqlToTxt {
         	//倒序
         	//Collections.reverse(keys);
             String keyStr = keys.toString();
-            System.out.println("keyStr:"+keyStr);
             keyStr = keyStr.replaceFirst("\\[", "").trim();
             keyStr = keyStr.replaceFirst("\\]", "").trim();
             builder.append("06!PRIMARY KEY(" + keyStr + ") \n \n");
@@ -194,12 +194,10 @@ public class ConverSqlToTxt {
 
     private List<String> getKeys(String txtStr, ArrayList<String> list,boolean startFlag,boolean endFlag) {
         String str[] = txtStr.split("!");
-        System.out.println("Start Flag : "+startFlag+" End Flag : "+endFlag);
         if (fiveNumber.equals(str[0]) && startFlag && !endFlag) {
             list.add(str[1]);
-            list = new ArrayList(new HashSet(list));
+            list = new ArrayList(new LinkedHashSet(list));
         }
-        System.out.println("list arry" + list.toString());
         return list;
     }
     
