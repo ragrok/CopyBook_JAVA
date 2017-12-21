@@ -25,6 +25,12 @@ public class CopyBookMain {
             System.out.println("dir_txt: "+dir_txt);
             System.out.println("schema: "+schema);
             
+//            String copyBookSql = "H:\\github\\Practice_JAVA\\DMTGEN2.SQL";
+//            String copyBookTxt = "H:\\github\\Practice_JAVA\\DMTGEN2.txt";
+//            String copyBookPath = "H:\\github\\Practice_JAVA\\CopyBook.txt";
+//            String dir_txt = "H:\\github\\Practice_JAVA\\dict.dat";
+//            String schema = "ODS";
+            
          	ConverSqlToTxt sqlToTxt = new ConverSqlToTxt(); 
 		    sqlToTxt.readBookFileByLine(copyBookSql,copyBookTxt);
 		    CopyBookToSql sql = new CopyBookToSql();

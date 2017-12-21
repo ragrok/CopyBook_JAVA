@@ -28,6 +28,7 @@ public class ConverSqlToTxt {
     private final String DevNumber = "DEVLYF";
     private final String Comp = "COMP";
     private final String KEY = "KEY";
+    private final String Redefines="REDEFINES";
 
     //去掉每行的水牌和最后的点
     private String getSplit(String charsString) {
@@ -85,8 +86,8 @@ public class ConverSqlToTxt {
                     startFlag = false;
                     endFlag = false;
                     //对字段进行处理
-                } else if (str.startsWith(fiveNumber) || str.startsWith(fourNumber) || str.startsWith(treeNumber)
-                        && str.endsWith(".") && !str.contains("*") || str.startsWith(sevenNumber)) {
+                } else if ((str.startsWith(fiveNumber) || str.startsWith(fourNumber) || str.startsWith(treeNumber) || str.startsWith(sevenNumber) )
+                        && str.endsWith(".") && !str.contains("*")  && !str.contains(Redefines)) {
                     lineStr = getSplit(str);
                     startFlag = checkTabKeyStart(lineStr,startFlag);
                     endFlag = checkTabKeyEnd(lineStr,endFlag);
@@ -153,12 +154,11 @@ public class ConverSqlToTxt {
             }
         }
 
-
-        if (splited.length == 3) {
+        if (splited.length == 3 && !splited[0].equals(sevenNumber)) {
             str = splited[0] + "!" + splited[1] + "!" + splited[2];
-        } else if (splited.length == 4) {
+        } else if (splited.length == 4 && !splited[0].equals(sevenNumber)) {
             str = splited[0] + "!" + splited[1] + "!" + splited[2] + "!" + splited[3];
-        } else if (splited.length == 6 && splited[1].equals(sevenNumber)) {
+        } else if (splited[0].equals(sevenNumber) && splited.length == 6) {
             str = splited[0] + "!" + splited[1]  + "!" + splited[3] + "!" + splited[4] + "!" + splited[5];
         }
         return str.trim();
