@@ -186,7 +186,7 @@ public class CopyBookToSql {
                     lineChar = arry1[1] + "\t" + "DECIMAL(" + number + ",0)" + "\t" + "DEFAULT 0 NOT NULL ,";
                 } 
 
-            } else if (arry1[2].startsWith(DIC)) {
+            } else if (arry1[2].startsWith(DIC) && !arry1[2].equals(DIC)) {
                 // 第三个数中带有逗号,有两种情况，第二个数为P，或者为其他数
                 if (arry1[2].contains(",")) { 
                     String str = getTwoBranket(arry1[2])[0];
@@ -296,7 +296,60 @@ public class CopyBookToSql {
                     }
                 }
 
-            }
+            }else if (arry1[2].equals(DIC)) {
+
+                String str = getOneBrankets(arry1[3]);
+                // 匹配到某个关键字
+                if (arry2[0].equals(str)) {
+                    // X类型
+                    if (PIC_X.equals(arry2[1])) {
+                    	if (Integer.valueOf(arry2[2])>255) {
+                          	  lineChar = arry1[1] + "\t" + "VARCHAR(" + arry2[2] + ")" + "\t" + "DEFAULT ' ' NOT NULL ,";
+      					 }else {
+      						  lineChar = arry1[1] + "\t" + "CHAR(" + arry2[2] + ")" + "\t" + "DEFAULT ' ' NOT NULL ,";
+      				   }
+                    }
+                    // N类型
+                    if (PIC_N.equals(arry2[1])) {
+                        lineChar = arry1[1] + "\t" + "DECIMAL(" + arry2[2] + "," + arry2[3] + ")" + "\t" + "DEFAULT 0 NOT NULL,";
+                    }
+                    // M类型 
+                    if (PIC_M.equals(arry2[1])) {
+                        int num = Integer.valueOf(arry2[2]) * 3;
+                        if (num >= 255) {
+                            lineChar = arry1[1] + "\t" + "VARCHAR(" + num + ")" + "\t" + "DEFAULT ' ' NOT NULL,";
+                        } else {
+                            lineChar = arry1[1] + "\t" + "CHAR(" + num + ")" + "\t" + "DEFAULT ' ' NOT NULL,";
+                        }
+                    }
+                    // V类型
+                    if (PIC_V.equals(arry2[1])) {
+                        int num = Integer.valueOf(arry2[2]);
+                        System.out.println("我是V类型");
+                        if (num >= 255) {
+                            lineChar = arry1[1] + "\t" + "VARCHAR(" + num + ")" + "\t" + "DEFAULT ' ' NOT NULL,";
+                        } else {
+                            lineChar = arry1[1] + "\t" + "CHAR(" + num + ")" + "\t" + "DEFAULT ' ' NOT NULL,";
+                        }
+                    }
+                 // S类型
+                    if (PIC_SS.equals(arry2[1])) {
+                    	   System.out.println("我是s类型");
+                            lineChar = arry1[1] + "\t" + "DECIMAL(" + arry2[2] + "," + arry2[3] + ")" + "\t" + "DEFAULT 0 NOT NULL,";
+                        
+                    }
+                    // C类型
+                    if (DIC_C.equals(arry2[1])) {
+                    	   System.out.println("我是c类型");
+                    	   int num = Integer.valueOf(arry2[2]);
+                           if (num >= 255) {
+                               lineChar = arry1[1] + "\t" + "VARCHAR(" + num + ")" + "\t" + "DEFAULT ' ' NOT NULL,";
+                           } else {
+                               lineChar = arry1[1] + "\t" + "CHAR(" + num + ")" + "\t" + "DEFAULT ' ' NOT NULL,";
+                           }
+                    }  
+                }
+			}
         } else if (arry1[0].equals(sevenNumber)) {
             String filedName = arry1[1];
             int fileNumber = Integer.valueOf(arry1[2]);
@@ -307,7 +360,7 @@ public class CopyBookToSql {
                 lineChar = "DECIMAL(" + str + ",0)" + "\t" + "DEFAULT 0 NOT NULL,";
             }
 
-            for (int i = 1; i < fileNumber; i++) {
+            for (int i = 1; i <= fileNumber; i++) {
                 builder.append(filedName + i + "\t \t" + lineChar + "\n");
             }
             lineChar = builder.toString();
@@ -332,6 +385,12 @@ public class CopyBookToSql {
 
     private String getOneBranket(String oneChar) {
         oneChar = oneChar.replace("DIC(", "").trim();
+        oneChar = oneChar.replace(")", "").trim();
+        return oneChar;
+    }
+    
+    private String getOneBrankets(String oneChar) {
+        oneChar = oneChar.replace("(", "").trim();
         oneChar = oneChar.replace(")", "").trim();
         return oneChar;
     }

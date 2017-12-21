@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
+import org.apache.poi.hwpf.model.PropertyNode.StartComparator;
+
 
 
 /**
@@ -27,6 +29,7 @@ public class ConverSqlToTxt {
     private final String DsbNumber = "DSB001";
     private final String DevNumber = "DEVLYF";
     private final String Comp = "COMP";
+    private final String Comp3 = "COMP_3";
     private final String KEY = "KEY";
     private final String Redefines="REDEFINES";
 
@@ -40,6 +43,8 @@ public class ConverSqlToTxt {
             lsString = lsString.replace(DevNumber, "").trim();
         } else if (lsString.endsWith(Comp)) {
             lsString = lsString.replace(Comp, "").trim();
+        }else if (lsString.endsWith(Comp3)) {
+            lsString = lsString.replace(Comp3, "").trim();
         }
         return lsString;
     }
@@ -49,25 +54,26 @@ public class ConverSqlToTxt {
      * @param readerFile 读取Excel，将需要的数据逐行抽取到临时txt文件
      * @param writeFile
      */
-    public void readBookFileByLine(String readerFile, String writeFile) {
-        BufferedReader reader = null;
-        BufferedWriter writer = null;
-        FileReader fileReader = null;
-        FileWriter fileWriter = null;
-        String linestr = "";
-        String lineStr = "";
-        List<String> keyList = null;
-        List<String> txtLsit1 = null;
-        boolean startFlag = false;
-        boolean endFlag = false;
-        int lineInt = 0;
-        try {
-        	fileReader = new FileReader(readerFile);
-            reader = new BufferedReader(fileReader);
-            fileWriter = new FileWriter(writeFile);
-            writer = new BufferedWriter(fileWriter);
-            txtLsit1 = new ArrayList<String>();
-            keyList = new ArrayList<String>();
+	public void readBookFileByLine(String readerFile, String writeFile) {
+		BufferedReader reader = null;
+		BufferedWriter writer = null;
+		FileReader fileReader = null;
+		FileWriter fileWriter = null;
+		String linestr = "";
+		String lineStr = "";
+		List<String> keyList = null;
+		List<String> txtLsit1 = null;
+		boolean startFlag = false;
+		boolean endFlag = false;
+		boolean redefStartFlag = false;
+		int lineInt = 0;
+		try {
+			fileReader = new FileReader(readerFile);
+			reader = new BufferedReader(fileReader);
+			fileWriter = new FileWriter(writeFile);
+			writer = new BufferedWriter(fileWriter);
+			txtLsit1 = new ArrayList<String>();
+			keyList = new ArrayList<String>();
 
             while ((linestr = reader.readLine()) != null) {
             	  if (!linestr.isEmpty()) {
@@ -85,13 +91,16 @@ public class ConverSqlToTxt {
                     lineStr = checkSqlTabName(lineStr, keyList, lineInt);
                     startFlag = false;
                     endFlag = false;
+                    redefStartFlag = false;
                     //对字段进行处理
                 } else if ((str.startsWith(fiveNumber) || str.startsWith(fourNumber) || str.startsWith(treeNumber) || str.startsWith(sevenNumber) )
-                        && str.endsWith(".") && !str.contains("*")  && !str.contains(Redefines)) {
+                        && str.endsWith(".") && !str.contains("*")) {
                     lineStr = getSplit(str);
                     startFlag = checkTabKeyStart(lineStr,startFlag);
                     endFlag = checkTabKeyEnd(lineStr,endFlag);
-                    lineStr = checkSqlTabFiled(lineStr);
+                    redefStartFlag = checkRedefStart(lineStr, redefStartFlag);
+                    redefStartFlag = checkRedefEnd(lineStr, redefStartFlag);
+                    lineStr = checkSqlTabFiled(lineStr,redefStartFlag);
                     keyList = getKeys(lineStr, (ArrayList<String>) keyList,startFlag,endFlag);
                 }
                 writer.write(lineStr);
@@ -125,7 +134,7 @@ public class ConverSqlToTxt {
      * @param lineChar 处理03和05开头的字符串
      * @return 符合规范的字符串
      */
-    private String checkSqlTabFiled(String lineChar) {
+    private String checkSqlTabFiled(String lineChar,boolean stFlag) {
         String str = "";
 
         String[] splited = lineChar.split("\\s+");
@@ -154,11 +163,11 @@ public class ConverSqlToTxt {
             }
         }
 
-        if (splited.length == 3 && !splited[0].equals(sevenNumber)) {
+        if (splited.length == 3 && !splited[0].equals(sevenNumber) && !stFlag ) {
             str = splited[0] + "!" + splited[1] + "!" + splited[2];
-        } else if (splited.length == 4 && !splited[0].equals(sevenNumber)) {
+        } else if (splited.length == 4 && !splited[0].equals(sevenNumber) && !stFlag ) {
             str = splited[0] + "!" + splited[1] + "!" + splited[2] + "!" + splited[3];
-        } else if (splited[0].equals(sevenNumber) && splited.length == 6) {
+        } else if (splited[0].equals(sevenNumber) && splited.length == 6 && !stFlag ) {
             str = splited[0] + "!" + splited[1]  + "!" + splited[3] + "!" + splited[4] + "!" + splited[5];
         }
         return str.trim();
@@ -236,5 +245,19 @@ public class ConverSqlToTxt {
         str = splited[0]+"!"+splited[1];  
         return str;
     }
+    
+    private boolean checkRedefStart(String txtStr,boolean flag){
+    	if (txtStr.contains(Redefines) && getFirstTwoChar(txtStr).startsWith(treeNumber)) {
+			flag = true;
+		}
+    	return flag;
+    }
+    
+    private boolean checkRedefEnd(String txtStr,boolean flag){
+    	if (!txtStr.contains(Redefines) && getFirstTwoChar(txtStr).startsWith(treeNumber)) {
+			 flag = false;
+		}
+    	return flag;
+    } 
 
 }
