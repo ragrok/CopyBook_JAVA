@@ -97,7 +97,7 @@ public class CopyBookToSql {
                             builder.append(arry1[1] + "\n");
                         }
                         builder.append(" ) \n");
-                        builder.append("IN TBS_REPORT_DATA INDEX IN TBS_REPORT_INDEX COMPRESS YES; \n\n");
+                        builder.append("IN TBS_REPORT_DATA INDEX IN TBS_REPORT_IDX  COMPRESS YES ; \n\n");
                         lineChar = builder.toString();
                     } else {
                        // System.out.println("这些都是不符合建表的情况");
@@ -176,11 +176,11 @@ public class CopyBookToSql {
 						  lineChar = arry1[1] + "\t" + "CHAR(" + number + ")" + "\t" + "DEFAULT ' ' NOT NULL ,";
 						}
                     } else {
-                        lineChar = arry1[1] + "\t" + "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,";
+                        lineChar = arry1[1] + "\t" + "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,";
                     }
                 } else if (arry1[3].startsWith(PIC_S)) {
                     String number = getSNine(arry1[3]);
-                    lineChar = arry1[1] + "\t" + "DECIMAL(" + number + ",0)" + "\t" + "DEFAULT 0 NOT NULL,";
+                    lineChar = arry1[1] + "\t" + "DECIMAL(" + number + ",0)" + "\t" + "DEFAULT 0 NOT NULL ,";
                 } else if (arry1[3].startsWith(PIC_N)) {
                     int number = Integer.valueOf(getNumbers(arry1[3]));
                     lineChar = arry1[1] + "\t" + "DECIMAL(" + number + ",0)" + "\t" + "DEFAULT 0 NOT NULL ,";

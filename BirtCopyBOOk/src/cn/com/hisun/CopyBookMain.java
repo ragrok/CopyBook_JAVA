@@ -12,24 +12,24 @@ public class CopyBookMain {
             public static void main(String[] args) throws IOException {
             	
             //接收shell脚本传递过来的参数
-            String copyBookSql = args[0];
-            String copyBookTxt = args[1];
-            String copyBookPath = args[2];
-            String dir_txt = args[3];
-            String schema = args[4]; 
+//            String copyBookSql = args[0];
+//            String copyBookTxt = args[1];
+//            String copyBookPath = args[2];
+//            String dir_txt = args[3];
+//            String schema = args[4]; 
+//            
+//            //组合
+//            System.out.println("copyBookSql: "+copyBookSql);
+//            System.out.println("copyBookTxt: "+copyBookTxt);
+//            System.out.println("copyBook: "+copyBookPath);
+//            System.out.println("dir_txt: "+dir_txt);
+//            System.out.println("schema: "+schema);
             
-            //组合
-            System.out.println("copyBookSql: "+copyBookSql);
-            System.out.println("copyBookTxt: "+copyBookTxt);
-            System.out.println("copyBook: "+copyBookPath);
-            System.out.println("dir_txt: "+dir_txt);
-            System.out.println("schema: "+schema);
-            
-//            String copyBookSql = "H:\\github\\Practice_JAVA\\DMTGEN2.SQL";
-//            String copyBookTxt = "H:\\github\\Practice_JAVA\\DMTGEN2.txt";
-//            String copyBookPath = "H:\\github\\Practice_JAVA\\CopyBook.txt";
-//            String dir_txt = "H:\\github\\Practice_JAVA\\dict.dat";
-//            String schema = "ODS";
+            String copyBookSql = "H:\\github\\Practice_JAVA\\DMTGEN2.SQL";
+            String copyBookTxt = "H:\\github\\Practice_JAVA\\DMTGEN2.txt";
+            String copyBookPath = "H:\\github\\Practice_JAVA\\CopyBook.txt";
+            String dir_txt = "H:\\github\\Practice_JAVA\\dict.dat";
+            String schema = "ODS";
             
          	ConverSqlToTxt sqlToTxt = new ConverSqlToTxt(); 
 		    sqlToTxt.readBookFileByLine(copyBookSql,copyBookTxt);
