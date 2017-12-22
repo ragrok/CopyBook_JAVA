@@ -1332,49 +1332,192 @@
            03 :SRE2:_UPDTBL_TLR    DIC(TLR_NO).
            03 :SRE2:_TS            PIC X(26).
       *@*CHECKSUM _971376728
-       #IFNDEF TABLE_CLTSUBC
-       #DEFINE TABLE_CLTSUBC
-           EXEC SQL DECLARE CLTSUBC TABLE
-           (
-             COLL_NO                  DEC(10, 0) NOT NULL,
-             SUB_COLL_TYP             DEC(4, 0) NOT NULL,
-             SUB_SEQ                  DEC(10, 0) NOT NULL,
-             COLL_TYP                 DEC(4, 0) NOT NULL,
-             SOURCE_SYS               CHAR(5) NOT NULL,
-             SOURCE_REF               CHAR(60) NOT NULL,
-             SOURCE_SUB_REF           CHAR(60) NOT NULL,
-             DATE_LEN                 DEC(9, 0) NOT NULL,
-             VAL                      VARCHAR(600) NOT NULL,
-             CRT_DATE                 DEC(8, 0) NOT NULL,
-             CRT_TLR                  CHAR(8) NOT NULL,
-             UPDTBL_DATE              DEC(8, 0) NOT NULL,
-             UPDTBL_TLR               CHAR(8) NOT NULL,
-             TS                       TIMESTAMP NOT NULL
-           )
-           END_EXEC.
-       #ENDIF
-      ******************************************************************
-      * COBOL DECLARATION FOR TABLE CLTSUBC                            *
-      ******************************************************************
-       01  CLR:SUBC:.
-           03 :SUBC:_KEY.
-              05 :SUBC:_COLL_NO    DIC(GTEE_NO, P).
-              05 :SUBC:_SUB_COLL_TYP DIC(COL_KND, P).
-              05 :SUBC:_SUB_SEQ    DIC(N10, P).
-           03 :SUBC:_COLL_TYP      DIC(COL_KND, P).
-           03 :SUBC:_SOURCE_SYS    DIC(FREE_CD5).
-           03 :SUBC:_SOURCE_REF    DIC(DESCE_60).
-           03 :SUBC:_SOURCE_SUB_REF DIC(DESCE_60).
-           03 :SUBC:_DATE_LEN      DIC(LEN, P).
-           03 :SUBC:_VAL.
-              49 :SUBC:_VAL_LEN    PIC S9(4) COMP.
-              49 :SUBC:_VAL_TEXT   DIC(TXT_BIG, L600).
-           03 :SUBC:_CRT_DATE      DIC(DT, P).
-           03 :SUBC:_CRT_TLR       DIC(TLR_NO).
-           03 :SUBC:_UPDTBL_DATE   DIC(DT, P).
-           03 :SUBC:_UPDTBL_TLR    DIC(TLR_NO).
-           03 :SUBC:_TS            PIC X(26).
-      *@*CHECKSUM 631469218
+      *****************************************************************
+      *  FILE LAYOUT SPECIFICATION                                    *
+      *---------------------------------------------------------------*
+      *  RECORD NAME... : CLR:SUBC                                    *
+      *  DESCRIPTION... : COPYBOOK FOR BAT FILE CLQSUBC               *
+      *  FILE NAME..... :                                             *
+      *  RECORD LENGTH. :                                             *
+      *  AUTHOR........ : DEVLCL                                      *
+      *  CREATED DATE.. : 2016/11/22                                  *
+      *  VERSION NO.... : 1.0.0                                       *
+      *---------------------------------------------------------------*
+      *   SEQ       DESCRIPTION                    BY     DATE        *
+      *---------------------------------------------------------------*
+*   001       SUB TYP 01&07 SAME STRUCT    DEVZYH  2017/07/08   *
+*             FUND-MAR-PRI-TYP LEN 3->5                         *
+*   002       SUB TYP 08                   DEVZYH  2017/07/22   *
+*             STOCK NAME LEN 25 -> 40                           *
+*   003      STOCK CODE CHANGE NUM -> CHAR DEVFXL  2017/10/12   *
+      *---------------------------------------------------------------*
+      *****************************************************************
+       01  CLR:SUBC.
+       03  :SUBC:_KEY.
+           05 :SUBC:_COLL_NO                   DIC(GTEE_NO ).
+           05 :SUBC:_SUB_COLL_TYP              DIC(COL_KND ).
+           05 :SUBC:_SUB_SEQ                   DIC(N10     ).
+       03 :SUBC:_COLL_TYP                  DIC(COL_KND ).
+       03 :SUBC:_SOURCE_SYS                DIC(FREE_CD5).
+     03 :SUBC:_SOURCE_REF                DIC(DESCE_60).
+     03 :SUBC:_SOURCE_SUB_REF            DIC(DESCE_60).
+           03 :SUBC:_DATE_LEN                  DIC(LEN     ).
+* 01 USE THIS COPYBOOK, 07 USE THIS COPYBOOK
+     03 :SUBC:_FUND_VAL.
+        05 :SUBC:_FUND_CD                DIC(BOX_NO  ).
+        05 :SUBC:_FUND_ENM               DIC(P_CDENC ).
+        05 :SUBC:_FUND_HENM              DIC(P_CDENC ).
+        05 :SUBC:_FUND_UNITS_NO          DIC(DEC_18  ).
+        05 :SUBC:_FUND_CCY               DIC(CCY     ).
+        05 :SUBC:_FUND_MAR_PRI           DIC(DEC_18  ).
+        05 :SUBC:_FUND_MAR_PRI_TYP       DIC(X05     ).
+        05 :SUBC:_FUND_MAR_PRI_DT        DIC(DT      ).
+        05 :SUBC:_FUND_MAR_VAL           DIC(AMT_NS  ).
+        05 :SUBC:_FUND_FX_RATE           DIC(EX_RAT  ).
+        05 :SUBC:_FUND_MAR_VAL_HKD       DIC(AMT_NS  ).
+        05 :SUBC:_FUND_LTV               DIC(PCT     ).
+        05 :SUBC:_FUND_LOAN_VAL          DIC(AMT_NS  ).
+        05 :SUBC:_FUND_LOAN_VAL_HKD      DIC(AMT_NS  ).
+        05 :SUBC:_FUND_ISIN_CODE         DIC(X50     ).
+* 02 USE THIS COPYBOOK
+     03 :SUBC:_EQUI_VAL.
+        05 :SUBC:_EQUI_CD                DIC(BOX_NO  ).
+        05 :SUBC:_EQUI_ENM               DIC(P_CDENC ).
+        05 :SUBC:_EQUI_HENM              DIC(P_CDENC ).
+        05 :SUBC:_EQUI_UNITS_NO          DIC(TAMT_NS ).
+        05 :SUBC:_EQUI_CCY               DIC(CCY     ).
+        05 :SUBC:_EQUI_MAR_PRI           DIC(DEC_18  ).
+        05 :SUBC:_EQUI_MAR_PRI_TYP       DIC(KND     ).
+        05 :SUBC:_EQUI_MAR_PRI_DT        DIC(DT      ).
+        05 :SUBC:_EQUI_MAR_VAL           DIC(TAMT_NS ).
+        05 :SUBC:_EQUI_FX_RATE           DIC(DEC_18  ).
+        05 :SUBC:_EQUI_MAR_VAL_HKD       DIC(TAMT_NS ).
+        05 :SUBC:_EQUI_LTV               DIC(DEC_18  ).
+        05 :SUBC:_EQUI_LOAN_VAL          DIC(TAMT_NS ).
+        05 :SUBC:_EQUI_LOAN_VAL_HKD      DIC(TAMT_NS ).
+        05 :SUBC:_EQUI_COL_CD            DIC(CIRSK_CD).
+        05 :SUBC:_EQUI_MAR_LOC           DIC(CNTY_CD ).
+* 03 12 USE THIS COPYBOOK
+           03 :SUBC:_BOND_VAL.
+              05 :SUBC:_BOND_CD                DIC(BOX_NO  ).
+              05 :SUBC:_BOND_ENM               DIC(P_CDENC ).
+              05 :SUBC:_BOND_ISS_ENM           DIC(P_CDENC ).
+              05 :SUBC:_BOND_NATINAL_AMT       DIC(AMT_NS  ).
+              05 :SUBC:_BOND_CCY               DIC(CCY     ).
+              05 :SUBC:_BOND_MAR_PRI           DIC(AMT_NS  ).
+              05 :SUBC:_BOND_MAR_PRI_TYP       DIC(KND     ).
+              05 :SUBC:_BOND_MAR_PRI_DT        DIC(DT      ).
+              05 :SUBC:_BOND_MAR_VAL           DIC(AMT_NS  ).
+              05 :SUBC:_BOND_FX_RATE           DIC(EX_RAT  ).
+              05 :SUBC:_BOND_MAR_VAL_HKD       DIC(AMT_NS  ).
+              05 :SUBC:_BOND_LTV               DIC(PCT     ).
+              05 :SUBC:_BOND_LOAN_VAL          DIC(AMT_NS  ).
+              05 :SUBC:_BOND_LOAN_VAL_HKD      DIC(AMT_NS  ).
+        05 :SUBC:_BOND_COL_CD            DIC(CIRSK_CD).
+        05 :SUBC:_BOND_MAR_LOC           DIC(CNTY_CD ).
+        05 :SUBC:_BOND_GUA_TOR           DIC(MSGT_100).
+        05 :SUBC:_BOND_ISIN_CODE         DIC(X50     ).
+        05 :SUBC:_BOND_SUBSIDIARY        DIC(FLG     ).
+* 04 10 11 USE THIS COPYBOOK
+     03 :SUBC:_SPZM_VAL.
+        05 :SUBC:_SPZM_CD                DIC(BOX_NO  ).
+        05 :SUBC:_SPZM_ENM               DIC(P_CDENC ).
+        05 :SUBC:_SPZM_ISS_ENM           DIC(P_CDENC ).
+        05 :SUBC:_SPZM_NATINAL_AMT       DIC(AMT_NS  ).
+        05 :SUBC:_SPZM_CCY               DIC(CCY     ).
+        05 :SUBC:_SPZM_MAR_PRI           DIC(AMT_NS  ).
+        05 :SUBC:_SPZM_MAR_PRI_TYP       DIC(KND     ).
+        05 :SUBC:_SPZM_MAR_PRI_DT        DIC(DT      ).
+        05 :SUBC:_SPZM_MAR_VAL           DIC(AMT_NS  ).
+        05 :SUBC:_SPZM_FX_RATE           DIC(EX_RAT  ).
+        05 :SUBC:_SPZM_MAR_VAL_HKD       DIC(AMT_NS  ).
+        05 :SUBC:_SPZM_LTV               DIC(PCT     ).
+        05 :SUBC:_SPZM_LOAN_VAL          DIC(AMT_NS  ).
+        05 :SUBC:_SPZM_LOAN_VAL_HKD      DIC(AMT_NS  ).
+        05 :SUBC:_SPZM_COL_CD            DIC(CIRSK_CD).
+        05 :SUBC:_SPZM_MAR_LOC           DIC(CNTY_CD ).
+        05 :SUBC:_SPZM_ISIN_CODE         DIC(X50     ).
+      * 05 USE THIS COPYBOOK
+           03 :SUBC:_FDEP_VAL.
+              05 :SUBC:_FDEP_CD                DIC(BOX_NO  ).
+              05 :SUBC:_FDEP_AC_ENM            DIC(P_CDENC ).
+              05 :SUBC:_FDEP_DEPOSIT_AMT       DIC(AMT_NS  ).
+              05 :SUBC:_FDEP_DEPOSIT_CCY       DIC(CCY     ).
+              05 :SUBC:_FDEP_INT_AMT           DIC(AMT_NS  ).
+              05 :SUBC:_FDEP_VAL_DT            DIC(DT      ).
+              05 :SUBC:_FDEP_MATU_DT           DIC(DT      ).
+              05 :SUBC:_FDEP_FX_RATE           DIC(EX_RAT  ).
+              05 :SUBC:_FDEP_DEP_AMT_HKD       DIC(AMT_NS  ).
+              05 :SUBC:_FDEP_LTV               DIC(PCT     ).
+              05 :SUBC:_FDEP_LOAN_VAL          DIC(AMT_NS  ).
+              05 :SUBC:_FDEP_LOAN_VAL_HKD      DIC(AMT_NS  ).
+      * 06 USE THIS COPYBOOK
+           03 :SUBC:_CASH_VAL.
+              05 :SUBC:_CASH_PRDT_CD           DIC(BOX_NO  ).
+              05 :SUBC:_CASH_AC_ENM            DIC(P_CDENC ).
+              05 :SUBC:_CASH_AC_BAL            DIC(AMT_NS  ).
+              05 :SUBC:_CASH_AC_CCY            DIC(CCY     ).
+              05 :SUBC:_CASH_INT_AMT           DIC(AMT_NS  ).
+              05 :SUBC:_CASH_FX_RATE           DIC(EX_RAT  ).
+              05 :SUBC:_CASH_AC_BAL_HKD        DIC(AMT_NS  ).
+              05 :SUBC:_CASH_LTV               DIC(PCT     ).
+              05 :SUBC:_CASH_LOAN_VAL          DIC(AMT_NS  ).
+              05 :SUBC:_CASH_LOAN_VAL_HKD      DIC(AMT_NS  ).
+* 07 USE THIS COPYBOOK
+*    03 :SUBC:_FUUT_VAL.
+*       05 :SUBC:_FUUT_CD                DIC(BOX_NO  ).
+*       05 :SUBC:_FUUT_ENM               DIC(P_CDENC ).
+*       05 :SUBC:_FUUT_HENM              DIC(P_CDENC ).
+*       05 :SUBC:_FUUT_UNITS_NO          DIC(N18     ).
+*       05 :SUBC:_FUUT_CCY               DIC(CCY     ).
+*       05 :SUBC:_FUUT_MAR_PRI           DIC(TAMT_NS ).
+*       05 :SUBC:_FUUT_MAR_PRI_TYP       DIC(KND     ).
+*       05 :SUBC:_FUUT_MAR_PRI_DT        DIC(DT      ).
+*       05 :SUBC:_FUUT_MAR_VAL           DIC(TAMT_NS ).
+*       05 :SUBC:_FUUT_FX_RATE           DIC(EX_RAT  ).
+*       05 :SUBC:_FUUT_MAR_VAL_HKD       DIC(TAMT_NS ).
+*       05 :SUBC:_FUUT_LTV               DIC(NMR_DENR).
+*       05 :SUBC:_FUUT_LOAN_VAL          DIC(TAMT_NS ).
+*       05 :SUBC:_FUUT_LOAN_VAL_HKD      DIC(TAMT_NS ).
+      * 08 USE THIS COPYBOOK
+           03 :SUBC:_PLED_VAL.
+              05 :SUBC:_PLED_EXCH_CD           DIC(S_BOXNO ).
+*       05 :SUBC:_PLED_STOCK             DIC(NUM_6   ).
+        05 :SUBC:_PLED_STOCK             DIC(X06     ).
+*       05 :SUBC:_PLED_ST_NM             DIC(MSG_NM  ).
+        05 :SUBC:_PLED_ST_NM             DIC(DESC_40 ).
+              05 :SUBC:_PLED_TEMP_HOLD         DIC(SEQ_12  ).
+              05 :SUBC:_PLED_SETL_QTY          DIC(SEQ_12  ).
+              05 :SUBC:_PLED_BUY_QTY           DIC(SEQ_12  ).
+              05 :SUBC:_PLED_SELL_QTY          DIC(SEQ_12  ).
+*       05 :SUBC:_PLED_CCY               DIC(CCY     ).
+        05 :SUBC:_PLED_CCY               DIC(X04     ).
+*       05 :SUBC:_PLED_STOC_PRI          DIC(AMT_NS  ).
+*       05 :SUBC:_PLED_MAR_VAL           DIC(AMT_NS  ).
+*       05 :SUBC:_PLED_UN_MAR_VAL        DIC(AMT_NS  ).
+        05 :SUBC:_PLED_STOC_PRI          DIC(AMT_SHR ).
+        05 :SUBC:_PLED_MAR_VAL           DIC(TAMT_NS ).
+        05 :SUBC:_PLED_UN_MAR_VAL        DIC(TAMT_NS ).
+              05 :SUBC:_PLED_MARG_VAL          DIC(PCT     ).
+*       05 :SUBC:_PLED_LOAN_VAL          DIC(AMT_NS  ).
+*       05 :SUBC:_PLED_CAP_VAL           DIC(AMT_NS  ).
+*       05 :SUBC:_PLED_USABL_LOAN        DIC(AMT_NS  ).
+        05 :SUBC:_PLED_LOAN_VAL          DIC(TAMT_NS ).
+        05 :SUBC:_PLED_CAP_VAL           DIC(TAMT_NS ).
+        05 :SUBC:_PLED_USABL_LOAN        DIC(TAMT_NS ).
+      * 09 USE THIS COPYBOOK
+           03 :SUBC:_MARG_VAL.
+*       05 :SUBC:_MARG_STOCK             DIC(NUM_6   ).
+        05 :SUBC:_MARG_STOCK             DIC(X06     ).
+*       05 :SUBC:_MARG_ST_NM             DIC(MSG_NM  ).
+        05 :SUBC:_MARG_ST_NM             DIC(DESC_40 ).
+              05 :SUBC:_MARG_ST_BAL            DIC(TAMT_NS ).
+              05 :SUBC:_MARG_CCY               DIC(CCY     ).
+              05 :SUBC:_MARG_CLO_PRI           DIC(DEC_18  ).
+              05 :SUBC:_MARG_MAR_VAL           DIC(TAMT_NS ).
+              05 :SUBC:_MARG_LEAD_RATE         DIC(DEC_18  ).
+              05 :SUBC:_MARG_CAP_VAL           DIC(TAMT_NS ).
+              05 :SUBC:_MARG_MARG_VAL          DIC(TAMT_NS ).
        #IFNDEF TABLE_CLTUSE
        #DEFINE TABLE_CLTUSE
            EXEC SQL DECLARE CLTUSE TABLE
@@ -3659,12 +3802,12 @@
       *****************************************************************
         01 BPCCHMAK.
            03 CHMAK_SEQ           DIC(JRN_SEQ).
-DSB001*    03 CHMAK_AC_DT         DIC(DT).
-DSB001     03 CHMAK_AC_DT         PIC X(10).
+*    03 CHMAK_AC_DT         DIC(DT).
+     03 CHMAK_AC_DT         PIC X(10).
            03 CHMAK_JRNNO         DIC(JRNNO).
            03 CHMAK_JRN_SEQ       DIC(JRN_SEQ).
-DSB001*    03 CHMAK_TX_DT         DIC(DT).
-DSB001     03 CHMAK_TX_DT         PIC X(10).
+*    03 CHMAK_TX_DT         DIC(DT).
+     03 CHMAK_TX_DT         PIC X(10).
            03 CHMAK_TX_TM         DIC(TM).
            03 CHMAK_TX_CD         DIC(TX_CD).
            03 CHMAK_TX_TYPE       DIC(FRE_CD10).
@@ -3754,7 +3897,7 @@ DEVLYF        05 :EXRT:_UPD_SRC   DIC(EXRA_SRC).
       ************************************************
       * IBS DEL DATA TO ODS                          *
       ************************************************
-       01  SCC:DELL:.
+       01  SCQ:DELL:.
            03 :DELL:_TBNAME         PIC X(8).
            03 :DELL:_KEYNAME_TEXT   PIC X(200).
            03 :DELL:_KEYVALUE_TEXT  PIC X(200).
@@ -3790,9 +3933,9 @@ DEVLYF        05 :EXRT:_UPD_SRC   DIC(EXRA_SRC).
            END_EXEC.
        #ENDIF
       ******************************************************************
-      * COBOL DECLARATION FOR TABLE WFTWKFW                            *
+      * COBOL DECLARATION FOR TABLE WFFWKFW                            *
       ******************************************************************
-       01  WFR:WKFW:.
+       01  WFFWKFW:.
            03 :WKFW:_KEY.
               05 :WKFW:_REF        DIC(WF_NO).
            03 :WKFW:_SUB_BR        DIC(BR, P).

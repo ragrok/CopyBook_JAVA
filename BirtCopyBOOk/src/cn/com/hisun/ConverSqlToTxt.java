@@ -25,7 +25,6 @@ public class ConverSqlToTxt {
     private final String sevenNumber = "07";
     private final String fourNumber = "49";
     private final String firstNumber = "01";
-    private final String DsbNumber = "DSB001";
     private final String DevNumber = "DEVLYF";
     private final String Comp = "COMP";
     private final String Comp3 = "COMP_3";
@@ -34,13 +33,11 @@ public class ConverSqlToTxt {
 
     //去掉每行的水牌和最后的点
     private String getSplit(String charsString) {
-        String lsString = null;
+        String lsString = "";
         lsString = charsString.trim().replace(".", "").trim();
-        if (lsString.startsWith(DsbNumber)) {
-            lsString = lsString.replace(DsbNumber, "").trim();
-        } else if (lsString.startsWith(DevNumber)) {
+        if (lsString.startsWith(DevNumber)) {
             lsString = lsString.replace(DevNumber, "").trim();
-        } else if (lsString.endsWith(Comp)) {
+        }else if (lsString.endsWith(Comp)) {
             lsString = lsString.replace(Comp, "").trim();
         }else if (lsString.endsWith(Comp3)) {
             lsString = lsString.replace(Comp3, "").trim();

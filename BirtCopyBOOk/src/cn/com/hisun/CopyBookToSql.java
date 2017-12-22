@@ -25,6 +25,7 @@ public class CopyBookToSql {
     private final String fourNumber = "49";
     private final String DIC_P = "P";
     private final String DIC_C = "C";
+    private final String DIC_B = "B";
     private final String PIC_X = "X";
     private final String PIC_N = "9";
     private final String PIC_M = "M";
@@ -292,6 +293,15 @@ public class CopyBookToSql {
                                    lineChar = arry1[1] + "\t" + "CHAR(" + num + ")" + "\t" + "DEFAULT ' ' NOT NULL,";
                                }
                         }  
+                        if (DIC_B.equals(arry2[1])) {
+                     	   System.out.println("我是c类型");
+                     	   int num = Integer.valueOf(arry2[2]);
+                            if (num >= 255) {
+                                lineChar = arry1[1] + "\t" + "VARCHAR(" + num + ")" + "\t" + "DEFAULT ' ' NOT NULL,";
+                            } else {
+                                lineChar = arry1[1] + "\t" + "CHAR(" + num + ")" + "\t" + "DEFAULT ' ' NOT NULL,";
+                            }
+                     }  
                     }
                 }
 
