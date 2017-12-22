@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-import org.apache.poi.hwpf.model.PropertyNode.StartComparator;
 
 
 
@@ -80,7 +79,7 @@ public class ConverSqlToTxt {
 					txtLsit1.add(linestr.trim());
 				}
             }
-            //最后添加一个数据，防止最后一个key为空
+            //在末尾添加一个数据，防止最后一个key为空
             txtLsit1.add("01 TA:BLE:.");
             
             for(String str  : txtLsit1){
