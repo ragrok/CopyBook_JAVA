@@ -78,7 +78,7 @@ public class CopyBookToSql {
             //循环CopyBook
             for (String txtStr : txtLsit1) {
                 String arry1[] = txtStr.split("!");
-                //新建文件，新建输出流，增加建表语句
+                //匹配到每个01开头的数据贴上表结构的开头
                 if (arry1[0].equals(firstNumber) && !arry1[1].equals("TABLE")) {
                     lineChar = "\n";
                     lineChar += "DROP TABLE " + scheMa + "." + arry1[1] + ";" + " \n \n";
@@ -93,10 +93,12 @@ public class CopyBookToSql {
                         lineChar = splitSql(arry1, arry2, lineChar);
                     } else if (arry1[0].equals(sixNumber)) {
                         StringBuilder builder = new StringBuilder();
+                        //有key值的会显示出来，否则不显示
                         if (!KEY.equals(arry1[1])) {
                             builder.append(arry1[1] + "\n");
                         }
-                        builder.append(" ) \n");
+                        //默认贴上数据表的结尾
+                        builder.append(") \n");
                         builder.append("IN TBS_REPORT_DATA INDEX IN TBS_REPORT_IDX  COMPRESS YES ; \n\n");
                         lineChar = builder.toString();
                     } else {
@@ -108,7 +110,7 @@ public class CopyBookToSql {
                 lineChar = "";
             }
             System.out.println("我在这里");
-            //去掉最后一行的逗号
+            //在没有key的情况下，去掉最后一行的逗号
             for(int i=1; i < txtLsit3.size();i++){
             	if (txtLsit3.get(i).trim().startsWith(")") && txtLsit3.get(i-1).trim().endsWith(",")) {
 					String value = (txtLsit3.get(i-1).trim()).replace(","," ");
@@ -248,7 +250,7 @@ public class CopyBookToSql {
                     if (arry2[0].equals(str)) {
                         // X类型
                         if (PIC_X.equals(arry2[1])) {
-                        	if (Integer.valueOf(arry2[2])>255) {
+                        	if (Integer.valueOf(arry2[2]) > 255) {
                               	  lineChar = arry1[1] + "\t" + "VARCHAR(" + arry2[2] + ")" + "\t" + "DEFAULT ' ' NOT NULL ,";
           					 }else {
           						  lineChar = arry1[1] + "\t" + "CHAR(" + arry2[2] + ")" + "\t" + "DEFAULT ' ' NOT NULL ,";
@@ -277,7 +279,7 @@ public class CopyBookToSql {
                                 lineChar = arry1[1] + "\t" + "CHAR(" + num + ")" + "\t" + "DEFAULT ' ' NOT NULL,";
                             }
                         }
-                     // S类型
+                        // S类型
                         if (PIC_SS.equals(arry2[1])) {
                         	   System.out.println("我是s类型");
                                 lineChar = arry1[1] + "\t" + "DECIMAL(" + arry2[2] + "," + arry2[3] + ")" + "\t" + "DEFAULT 0 NOT NULL,";
@@ -286,13 +288,14 @@ public class CopyBookToSql {
                         // C类型
                         if (DIC_C.equals(arry2[1])) {
                         	   System.out.println("我是c类型");
-                        	   int num = Integer.valueOf(arry2[2]);
+                        	   int num = Integer.valueOf(arry2[2]) * 3;
                                if (num >= 255) {
                                    lineChar = arry1[1] + "\t" + "VARCHAR(" + num + ")" + "\t" + "DEFAULT ' ' NOT NULL,";
                                } else {
                                    lineChar = arry1[1] + "\t" + "CHAR(" + num + ")" + "\t" + "DEFAULT ' ' NOT NULL,";
                                }
                         }  
+                         //B类型
                         if (DIC_B.equals(arry2[1])) {
                      	   System.out.println("我是c类型");
                      	   int num = Integer.valueOf(arry2[2]);
@@ -301,7 +304,7 @@ public class CopyBookToSql {
                             } else {
                                 lineChar = arry1[1] + "\t" + "CHAR(" + num + ")" + "\t" + "DEFAULT ' ' NOT NULL,";
                             }
-                     }  
+                       }  
                     }
                 }
 
@@ -312,7 +315,7 @@ public class CopyBookToSql {
                 if (arry2[0].equals(str)) {
                     // X类型
                     if (PIC_X.equals(arry2[1])) {
-                    	if (Integer.valueOf(arry2[2])>255) {
+                    	if (Integer.valueOf(arry2[2]) > 255) {
                           	  lineChar = arry1[1] + "\t" + "VARCHAR(" + arry2[2] + ")" + "\t" + "DEFAULT ' ' NOT NULL ,";
       					 }else {
       						  lineChar = arry1[1] + "\t" + "CHAR(" + arry2[2] + ")" + "\t" + "DEFAULT ' ' NOT NULL ,";
