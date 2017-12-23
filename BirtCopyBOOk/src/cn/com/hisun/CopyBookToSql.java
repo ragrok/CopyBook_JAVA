@@ -17,12 +17,12 @@ import java.util.regex.Pattern;
 
 public class CopyBookToSql {
 
-    private final String firstNumber = "01";
-    private final String treeNumber = "03";
-    private final String fiveNumber = "05";
-    private final String sixNumber = "06";
-    private final String sevenNumber = "07";
-    private final String fourNumber = "49";
+    private final String Num_One = "01";
+    private final String Num_Three = "03";
+    private final String Num_Five = "05";
+    private final String Num_Six = "06";
+    private final String Num_Seven = "07";
+    private final String Num_Four_Nine = "49";
     private final String DIC_P = "P";
     private final String DIC_C = "C";
     private final String DIC_B = "B";
@@ -33,7 +33,7 @@ public class CopyBookToSql {
     private final String DIC = "DIC";
     private final String KEY = "KEY";
     private final String PIC_S = "S9";
-    private final String PIC_SS ="S";
+    private final String PIC_SS = "S";
     private final String PIC_V = "V";
     private final String TXT_BIG = "TXT_BIG";
 
@@ -50,7 +50,7 @@ public class CopyBookToSql {
         List<String> txtLsit3 = null;
         BufferedWriter writer = null;
         FileReader txtReader1 = null;
-        FileReader txtReader2= null;
+        FileReader txtReader2 = null;
         FileWriter txtWrite = null;
         try {
             String lineChar = null;
@@ -79,7 +79,7 @@ public class CopyBookToSql {
             for (String txtStr : txtLsit1) {
                 String arry1[] = txtStr.split("!");
                 //匹配到每个01开头的数据贴上表结构的开头
-                if (arry1[0].equals(firstNumber) && !arry1[1].equals("TABLE")) {
+                if (arry1[0].equals(Num_One) && !arry1[1].equals("TABLE")) {
                     lineChar = "\n";
                     lineChar += "DROP TABLE " + scheMa + "." + arry1[1] + ";" + " \n \n";
                     lineChar += "CREATE TABLE " + scheMa + "." + arry1[1] + " (";
@@ -88,10 +88,10 @@ public class CopyBookToSql {
                 //循环数据字典，匹配字段长度，输出建表语句
                 for (String txtStr2 : txtLsit2) {
                     String arry2[] = txtStr2.split(",");
-                    if (arry1[0].equals(treeNumber) || arry1[0].equals(fiveNumber)
-                            || arry1[0].equals(fourNumber) || arry1[0].equals(sevenNumber)) {
+                    if (arry1[0].equals(Num_Three) || arry1[0].equals(Num_Five)
+                            || arry1[0].equals(Num_Four_Nine) || arry1[0].equals(Num_Seven)) {
                         lineChar = splitSql(arry1, arry2, lineChar);
-                    } else if (arry1[0].equals(sixNumber)) {
+                    } else if (arry1[0].equals(Num_Six)) {
                         StringBuilder builder = new StringBuilder();
                         //有key值的会显示出来，否则不显示
                         if (!KEY.equals(arry1[1])) {
@@ -102,33 +102,33 @@ public class CopyBookToSql {
                         builder.append("IN TBS_REPORT_DATA INDEX IN TBS_REPORT_IDX  COMPRESS YES ; \n\n");
                         lineChar = builder.toString();
                     } else {
-                       // System.out.println("这些都是不符合建表的情况");
+                        // System.out.println("这些都是不符合建表的情况");
                     }
                 }
-                System.out.println("内容"+lineChar);
+                System.out.println("内容" + lineChar);
                 txtLsit3.add(lineChar);
                 lineChar = "";
             }
             System.out.println("我在这里");
             //在没有key的情况下，去掉最后一行的逗号
-            for(int i=1; i < txtLsit3.size();i++){
-            	if (txtLsit3.get(i).trim().startsWith(")") && txtLsit3.get(i-1).trim().endsWith(",")) {
-					String value = (txtLsit3.get(i-1).trim()).replace(","," ");
-					txtLsit3.set(i-1, value);
-				}
-            	System.out.println("内容"+txtLsit3.get(i-1).trim());
-            	writer.write(txtLsit3.get(i-1).trim());
-            	writer.newLine();
+            for (int i = 1; i < txtLsit3.size(); i++) {
+                if (txtLsit3.get(i).trim().startsWith(")") && txtLsit3.get(i - 1).trim().endsWith(",")) {
+                    String value = (txtLsit3.get(i - 1).trim()).replace(",", " ");
+                    txtLsit3.set(i - 1, value);
+                }
+                System.out.println("内容" + txtLsit3.get(i - 1).trim());
+                writer.write(txtLsit3.get(i - 1).trim());
+                writer.newLine();
             }
-            
+
         } catch (Exception e) {
             // TODO: handle exception
             // 关闭资源
         } finally {
 
-        	if (txtBuff1 != null) {
+            if (txtBuff1 != null) {
                 try {
-                	txtBuff1.close();
+                    txtBuff1.close();
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
@@ -137,7 +137,7 @@ public class CopyBookToSql {
 
             if (txtBuff2 != null) {
                 try {
-                	txtBuff2.close();
+                    txtBuff2.close();
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
@@ -146,8 +146,8 @@ public class CopyBookToSql {
 
             if (writer != null) {
                 try {
-                	writer.close();
-                	txtWrite.close();
+                    writer.close();
+                    txtWrite.close();
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
@@ -166,17 +166,17 @@ public class CopyBookToSql {
      */
     private String splitSql(String[] arry1, String[] arry2, String lineChar) {
 
-        if (arry1[0].equals(treeNumber) || arry1[0].equals(fourNumber) || arry1[0].equals(fiveNumber)) {
+        if (arry1[0].equals(Num_Three) || arry1[0].equals(Num_Four_Nine) || arry1[0].equals(Num_Five)) {
             if (arry1[2].equals(PIC)) {
                 // 以X开头的
                 if (arry1[3].startsWith(PIC_X)) {
                     String number = getNumbers(arry1[3]);
                     if (Integer.valueOf(number) != 26) {
-                    	if (Integer.valueOf(number)>255) {
-                    	 lineChar = arry1[1] + "\t" + "VARCHAR(" + number + ")" + "\t" + "DEFAULT ' ' NOT NULL ,";
-						}else {
-						  lineChar = arry1[1] + "\t" + "CHAR(" + number + ")" + "\t" + "DEFAULT ' ' NOT NULL ,";
-						}
+                        if (Integer.valueOf(number) > 255) {
+                            lineChar = arry1[1] + "\t" + "VARCHAR(" + number + ")" + "\t" + "DEFAULT ' ' NOT NULL ,";
+                        } else {
+                            lineChar = arry1[1] + "\t" + "CHAR(" + number + ")" + "\t" + "DEFAULT ' ' NOT NULL ,";
+                        }
                     } else {
                         lineChar = arry1[1] + "\t" + "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,";
                     }
@@ -186,22 +186,22 @@ public class CopyBookToSql {
                 } else if (arry1[3].startsWith(PIC_N)) {
                     int number = Integer.valueOf(getNumbers(arry1[3]));
                     lineChar = arry1[1] + "\t" + "DECIMAL(" + number + ",0)" + "\t" + "DEFAULT 0 NOT NULL ,";
-                } 
+                }
 
             } else if (arry1[2].startsWith(DIC) && !arry1[2].equals(DIC)) {
                 // 第三个数中带有逗号,有两种情况，第二个数为P，或者为其他数
-                if (arry1[2].contains(",")) { 
+                if (arry1[2].contains(",")) {
                     String str = getTwoBranket(arry1[2])[0];
                     String str2 = getTwoBranket(arry1[2])[1];
                     // 匹配到第一个关键字，并且第二个字母为P
                     if (arry2[0].equals(str) && DIC_P.equals(str2)) {
                         // X类型
                         if (PIC_X.equals(arry2[1])) {
-                        	if (Integer.valueOf(arry2[2])>255) {
-                           	 lineChar = arry1[1] + "\t" + "VARCHAR(" + arry2[2] + ")" + "\t" + "DEFAULT ' ' NOT NULL ,";
-       						}else {
-       						  lineChar = arry1[1] + "\t" + "CHAR(" + arry2[2] + ")" + "\t" + "DEFAULT ' ' NOT NULL ,";
-       						}
+                            if (Integer.valueOf(arry2[2]) > 255) {
+                                lineChar = arry1[1] + "\t" + "VARCHAR(" + arry2[2] + ")" + "\t" + "DEFAULT ' ' NOT NULL ,";
+                            } else {
+                                lineChar = arry1[1] + "\t" + "CHAR(" + arry2[2] + ")" + "\t" + "DEFAULT ' ' NOT NULL ,";
+                            }
                         }
                         // N类型
                         if (PIC_N.equals(arry2[1])) {
@@ -228,21 +228,21 @@ public class CopyBookToSql {
                         }
                         // S类型
                         if (PIC_SS.equals(arry2[1])) {
-                                lineChar = arry1[1] + "\t" + "DECIMAL(" + arry2[2] + "," + arry2[3] + ")" + "\t" + "DEFAULT 0 NOT NULL,";
-                            
+                            lineChar = arry1[1] + "\t" + "DECIMAL(" + arry2[2] + "," + arry2[3] + ")" + "\t" + "DEFAULT 0 NOT NULL,";
+
                         }
-                     //处理第二个数不为P的 ,这是特殊类型  
-                    }else if (arry2[0].equals(str) && !DIC_P.equals(str2)) {
-                    	if (TXT_BIG.equals(arry2[0])) {
-                    		int number = (int) (Integer.valueOf(getNumbers(str2))*1.5);
-                        	if (number >= 255) {
+                        //处理第二个数不为P的 ,这是特殊类型
+                    } else if (arry2[0].equals(str) && !DIC_P.equals(str2)) {
+                        if (TXT_BIG.equals(arry2[0])) {
+                            int number = (int) (Integer.valueOf(getNumbers(str2)) * 1.5);
+                            if (number >= 255) {
                                 lineChar = arry1[1] + "\t" + "VARCHAR(" + number + ")" + "\t" + "DEFAULT ' ' NOT NULL,";
                             } else {
                                 lineChar = arry1[1] + "\t" + "CHAR(" + number + ")" + "\t" + "DEFAULT ' ' NOT NULL,";
                             }
-						}
-                    	
-					}
+                        }
+
+                    }
                     // 第三个数不带有逗号
                 } else if (!arry1[2].contains(",")) {
                     String str = getOneBranket(arry1[2]);
@@ -250,11 +250,11 @@ public class CopyBookToSql {
                     if (arry2[0].equals(str)) {
                         // X类型
                         if (PIC_X.equals(arry2[1])) {
-                        	if (Integer.valueOf(arry2[2]) > 255) {
-                              	  lineChar = arry1[1] + "\t" + "VARCHAR(" + arry2[2] + ")" + "\t" + "DEFAULT ' ' NOT NULL ,";
-          					 }else {
-          						  lineChar = arry1[1] + "\t" + "CHAR(" + arry2[2] + ")" + "\t" + "DEFAULT ' ' NOT NULL ,";
-          				   }
+                            if (Integer.valueOf(arry2[2]) > 255) {
+                                lineChar = arry1[1] + "\t" + "VARCHAR(" + arry2[2] + ")" + "\t" + "DEFAULT ' ' NOT NULL ,";
+                            } else {
+                                lineChar = arry1[1] + "\t" + "CHAR(" + arry2[2] + ")" + "\t" + "DEFAULT ' ' NOT NULL ,";
+                            }
                         }
                         // N类型
                         if (PIC_N.equals(arry2[1])) {
@@ -281,45 +281,45 @@ public class CopyBookToSql {
                         }
                         // S类型
                         if (PIC_SS.equals(arry2[1])) {
-                        	   System.out.println("我是s类型");
-                                lineChar = arry1[1] + "\t" + "DECIMAL(" + arry2[2] + "," + arry2[3] + ")" + "\t" + "DEFAULT 0 NOT NULL,";
-                            
+                            System.out.println("我是s类型");
+                            lineChar = arry1[1] + "\t" + "DECIMAL(" + arry2[2] + "," + arry2[3] + ")" + "\t" + "DEFAULT 0 NOT NULL,";
+
                         }
                         // C类型
                         if (DIC_C.equals(arry2[1])) {
-                        	   System.out.println("我是c类型");
-                        	   int num = Integer.valueOf(arry2[2]) * 3;
-                               if (num >= 255) {
-                                   lineChar = arry1[1] + "\t" + "VARCHAR(" + num + ")" + "\t" + "DEFAULT ' ' NOT NULL,";
-                               } else {
-                                   lineChar = arry1[1] + "\t" + "CHAR(" + num + ")" + "\t" + "DEFAULT ' ' NOT NULL,";
-                               }
-                        }  
-                         //B类型
-                        if (DIC_B.equals(arry2[1])) {
-                     	   System.out.println("我是c类型");
-                     	   int num = Integer.valueOf(arry2[2]);
+                            System.out.println("我是c类型");
+                            int num = Integer.valueOf(arry2[2]) * 3;
                             if (num >= 255) {
                                 lineChar = arry1[1] + "\t" + "VARCHAR(" + num + ")" + "\t" + "DEFAULT ' ' NOT NULL,";
                             } else {
                                 lineChar = arry1[1] + "\t" + "CHAR(" + num + ")" + "\t" + "DEFAULT ' ' NOT NULL,";
                             }
-                       }  
+                        }
+                        //B类型
+                        if (DIC_B.equals(arry2[1])) {
+                            System.out.println("我是c类型");
+                            int num = Integer.valueOf(arry2[2]);
+                            if (num >= 255) {
+                                lineChar = arry1[1] + "\t" + "VARCHAR(" + num + ")" + "\t" + "DEFAULT ' ' NOT NULL,";
+                            } else {
+                                lineChar = arry1[1] + "\t" + "CHAR(" + num + ")" + "\t" + "DEFAULT ' ' NOT NULL,";
+                            }
+                        }
                     }
                 }
 
-            }else if (arry1[2].equals(DIC)) {
+            } else if (arry1[2].equals(DIC)) {
 
                 String str = getOneBrankets(arry1[3]);
                 // 匹配到某个关键字
                 if (arry2[0].equals(str)) {
                     // X类型
                     if (PIC_X.equals(arry2[1])) {
-                    	if (Integer.valueOf(arry2[2]) > 255) {
-                          	  lineChar = arry1[1] + "\t" + "VARCHAR(" + arry2[2] + ")" + "\t" + "DEFAULT ' ' NOT NULL ,";
-      					 }else {
-      						  lineChar = arry1[1] + "\t" + "CHAR(" + arry2[2] + ")" + "\t" + "DEFAULT ' ' NOT NULL ,";
-      				   }
+                        if (Integer.valueOf(arry2[2]) > 255) {
+                            lineChar = arry1[1] + "\t" + "VARCHAR(" + arry2[2] + ")" + "\t" + "DEFAULT ' ' NOT NULL ,";
+                        } else {
+                            lineChar = arry1[1] + "\t" + "CHAR(" + arry2[2] + ")" + "\t" + "DEFAULT ' ' NOT NULL ,";
+                        }
                     }
                     // N类型
                     if (PIC_N.equals(arry2[1])) {
@@ -344,29 +344,29 @@ public class CopyBookToSql {
                             lineChar = arry1[1] + "\t" + "CHAR(" + num + ")" + "\t" + "DEFAULT ' ' NOT NULL,";
                         }
                     }
-                 // S类型
+                    // S类型
                     if (PIC_SS.equals(arry2[1])) {
-                    	   System.out.println("我是s类型");
-                            lineChar = arry1[1] + "\t" + "DECIMAL(" + arry2[2] + "," + arry2[3] + ")" + "\t" + "DEFAULT 0 NOT NULL,";
-                        
+                        System.out.println("我是s类型");
+                        lineChar = arry1[1] + "\t" + "DECIMAL(" + arry2[2] + "," + arry2[3] + ")" + "\t" + "DEFAULT 0 NOT NULL,";
+
                     }
                     // C类型
                     if (DIC_C.equals(arry2[1])) {
-                    	   System.out.println("我是c类型");
-                    	   int num = Integer.valueOf(arry2[2]);
-                           if (num >= 255) {
-                               lineChar = arry1[1] + "\t" + "VARCHAR(" + num + ")" + "\t" + "DEFAULT ' ' NOT NULL,";
-                           } else {
-                               lineChar = arry1[1] + "\t" + "CHAR(" + num + ")" + "\t" + "DEFAULT ' ' NOT NULL,";
-                           }
-                    }  
+                        System.out.println("我是c类型");
+                        int num = Integer.valueOf(arry2[2]) * 3;
+                        if (num >= 255) {
+                            lineChar = arry1[1] + "\t" + "VARCHAR(" + num + ")" + "\t" + "DEFAULT ' ' NOT NULL,";
+                        } else {
+                            lineChar = arry1[1] + "\t" + "CHAR(" + num + ")" + "\t" + "DEFAULT ' ' NOT NULL,";
+                        }
+                    }
                 }
-			}
-        } else if (arry1[0].equals(sevenNumber)) {
+            }
+        } else if (arry1[0].equals(Num_Seven)) {
             String filedName = arry1[1];
             int fileNumber = Integer.valueOf(arry1[2]);
             StringBuilder builder = new StringBuilder();
-             
+
             if ((arry1[3]).startsWith(PIC)) {
                 String str = getNine(arry1[4]);
                 lineChar = "DECIMAL(" + str + ",0)" + "\t" + "DEFAULT 0 NOT NULL,";
@@ -378,7 +378,7 @@ public class CopyBookToSql {
             lineChar = builder.toString();
 
         } else {
-           // System.out.println("这些都是异常情况");
+            // System.out.println("这些都是异常情况");
         }
         return lineChar;
     }
@@ -400,7 +400,7 @@ public class CopyBookToSql {
         oneChar = oneChar.replace(")", "").trim();
         return oneChar;
     }
-    
+
     private String getOneBrankets(String oneChar) {
         oneChar = oneChar.replace("(", "").trim();
         oneChar = oneChar.replace(")", "").trim();
