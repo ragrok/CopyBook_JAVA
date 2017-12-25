@@ -29,7 +29,7 @@ public class CopyBookMain {
             String copyBookTxt = "H:\\github\\Practice_JAVA\\DMTGEN2.txt";
             String copyBookPath = "H:\\github\\Practice_JAVA\\CopyBook.txt";
             String dir_txt = "H:\\github\\Practice_JAVA\\dict.dat";
-            String schema = "ODS";
+            String schema = "BOOK";
             
          	ConverSqlToTxt sqlToTxt = new ConverSqlToTxt(); 
 		    sqlToTxt.readBookFileByLine(copyBookSql,copyBookTxt);
